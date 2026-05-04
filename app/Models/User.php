@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Registration;
+use App\Models\UserPreference;
 
 class User extends Authenticatable
 {
@@ -50,13 +52,23 @@ class User extends Authenticatable
         ];
     }
 
-    public function isAdmin(): bool
+    public function isAdmin()
     {
         return $this->role === 'admin';
     }
 
-    public function isUser(): bool
+    public function isUser()
     {
         return $this->role === 'user';
+    }
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class);
+    }
+
+    public function preference()
+    {
+        return $this->hasOne(UserPreference::class);
     }
 }
