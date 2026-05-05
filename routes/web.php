@@ -7,6 +7,7 @@ use App\Http\Controllers\MyRegistrationController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\Admin\RegistrationController as AdminRegistrationController;
 use App\Http\Controllers\Admin\RegistrationDecisionController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,10 +36,15 @@ Route::middleware(['auth', 'is_user'])->group(function () {
 
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations.index');
+    
     Route::post('/registrations/{registration}/accept', [RegistrationDecisionController::class, 'accept'])->name('registrations.accept');
     Route::post('/registrations/{registration}/reject', [RegistrationDecisionController::class, 'reject'])->name('registrations.reject');
     Route::post('/registrations/invite', [RegistrationDecisionController::class, 'invite'])
     ->name('registrations.invite');
+
+
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::patch('/users/{user}/visibility', [AdminUserController::class, 'toggleVisibility'])->name('users.toggle-visibility');
 });
 
 require __DIR__.'/auth.php';
