@@ -12,7 +12,7 @@ class AdminInviteRegistrationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->isAdmin() ?? false;
     }
 
     /**
@@ -23,7 +23,9 @@ class AdminInviteRegistrationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'activity_id' => ['required', 'integer', 'exists:activities,id'],
+            'comment' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

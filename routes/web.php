@@ -37,6 +37,8 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations.index');
     Route::post('/registrations/{registration}/accept', [RegistrationDecisionController::class, 'accept'])->name('registrations.accept');
     Route::post('/registrations/{registration}/reject', [RegistrationDecisionController::class, 'reject'])->name('registrations.reject');
+    Route::post('/registrations/invite', [RegistrationDecisionController::class, 'invite'])
+    ->name('registrations.invite');
 });
 
 require __DIR__.'/auth.php';

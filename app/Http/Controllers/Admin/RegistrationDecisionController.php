@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\AdminInviteRegistrationRequest;
+use App\Models\Activity;
 use App\Models\Registration;
+use App\Models\User;
 use App\Services\RegistrationService;
 
 class RegistrationDecisionController extends Controller
@@ -16,7 +18,19 @@ class RegistrationDecisionController extends Controller
 
     public function invite(AdminInviteRegistrationRequest $request)
     {
-        //
+        $user = User::findOrFail($request->integer('user_id'));
+        $activity = Activity::findOrFail($request->integer('activity_id'));
+
+        $this->registrationService->createInvite(
+            $user,
+            $activity,
+            $request->user(),
+            $request->input('comment') ?? null,
+        );
+
+        return redirect()
+        ->route('admin.registrations.index')
+        ->with('status', 'User invited to activity.');
     }
 
     public function accept(Registration $registration)

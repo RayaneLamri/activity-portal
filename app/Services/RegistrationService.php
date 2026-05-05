@@ -36,10 +36,46 @@ class RegistrationService
 
     public function createInvite(User $user, Activity $activity)
     {
-        //
+        if (! $activity->is_active) {
+            throw ValidationException::withMessages([
+                'activity_id' => 'This activity is inactive.',
+            ]);
+        }
+
+        if (! $user->is_visible) {
+            throw ValidationException::withMessages([
+                'user_id' => 'Hidden users cannot be invited.',
+            ]);
+        }
+
+        $exists = Registration::query()
+        ->where('user_id', $user->id)
+        ->where('activity_id', $activity->id)
+        ->exists();
+
+        if ($exists) {
+            throw ValidationException::withMessages([
+                'user_id' => 'This user already has a registration for this activity.',
+            ]);
+        }
+
+        $registration = Registration::create([
+            'user_id' => $user->id,
+            'activity_id' => $activity->id,
+            'status' => Registration::INVITED,
+        ]);
+
+        $registration->events()->create([
+            'user_id' => $user->id,
+            'action' => Registration::INVITED,
+            'comment' => $comment,
+            'date' => now(),
+        ]);
+
+        return $registration;
     }
 
-    public function accept(Registration $registration, User $actor): Registration
+    public function accept(Registration $registration, User $user)
     {
         if (! $registration->isRequested() && ! $registration->isInvited()) {
             throw ValidationException::withMessages([
@@ -64,7 +100,7 @@ class RegistrationService
         ]);
 
         $registration->events()->create([
-            'user_id' => $actor->id,
+            'user_id' => $user->id,
             'action' => Registration::ACCEPTED,
             'date' => now(),
         ]);
