@@ -15,6 +15,8 @@ class Registration extends Model
     public const CREATED_AT = null;
     public const UPDATED_AT = 'date';
 
+    protected $guarded = [];
+
     public function user()
     {
         return $this->belongsTo(User::class);
