@@ -12,7 +12,7 @@ class ActivityIndexRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user() !== null;
     }
 
     /**
@@ -22,6 +22,12 @@ class ActivityIndexRequest extends FormRequest
      */
     public function rules(): array
     {
-        //
+        return [
+            'city' => ['nullable', 'string', 'max:255'],
+            'age' => ['nullable', 'integer', 'min:0', 'max:99'],
+            'from' => ['nullable', 'date'],
+            'until' => ['nullable', 'date', 'after_or_equal:from'],
+            'match_preferences' => ['nullable', 'boolean'],
+        ];
     }
 }
