@@ -12,7 +12,7 @@ class AdminRegistrationIndexRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->isAdmin() ?? false;
     }
 
     /**
@@ -23,7 +23,9 @@ class AdminRegistrationIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'search' => ['nullable', 'string', 'max:120'],
+            'city' => ['nullable', 'string', 'max:120'],
+            'status' => ['nullable', 'string'],
         ];
     }
 }

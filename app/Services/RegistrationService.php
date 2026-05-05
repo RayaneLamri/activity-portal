@@ -39,13 +39,57 @@ class RegistrationService
         //
     }
 
-    public function accept(Registration $registration, User $user)
+    public function accept(Registration $registration, User $actor): Registration
     {
-        //
+        if (! $registration->isRequested() && ! $registration->isInvited()) {
+            throw ValidationException::withMessages([
+                'registration' => 'Only requested or invited registrations can be accepted.',
+            ]);
+        }
+
+        if (! $registration->user->is_visible) {
+            throw ValidationException::withMessages([
+                'registration' => 'Hidden users cannot be accepted.',
+            ]);
+        }
+
+        if ($registration->activity->remainingCapacity() <= 0) {
+            throw ValidationException::withMessages([
+                'registration' => 'This activity is full.',
+            ]);
+        }
+
+        $registration->update([
+            'status' => Registration::ACCEPTED,
+        ]);
+
+        $registration->events()->create([
+            'user_id' => $actor->id,
+            'action' => Registration::ACCEPTED,
+            'date' => now(),
+        ]);
+
+        return $registration;
     }
 
-    public function refuse(Registration $registration, User $user)
+    public function reject(Registration $registration, User $user)
     {
-        //
+        if (! $registration->isRequested() && ! $registration->isInvited()) {
+            throw ValidationException::withMessages([
+                'registration' => 'Only requested or invited registrations can be rejected.',
+            ]);
+        }
+
+        $registration->update([
+            'status' => Registration::REJECTED,
+        ]);
+
+        $registration->events()->create([
+            'user_id' => $user->id,
+            'action' => Registration::REJECTED,
+            'date' => now(),
+        ]);
+
+        return $registration;
     }
 }
