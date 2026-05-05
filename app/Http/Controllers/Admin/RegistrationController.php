@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\AdminRegistrationIndexRequest;
 use App\Models\Activity;
+use App\Models\Registration;
 use App\Models\User;
 
 class RegistrationController extends Controller
@@ -30,6 +31,19 @@ class RegistrationController extends Controller
         return view('admin.registrations.index', [
             'activities' => $activities,
             'users' => $users,
+        ]);
+    }
+
+    public function show(Registration $registration)
+    {
+        $registration->load([
+            'user',
+            'activity',
+            'events.user',
+        ]);
+
+        return view('admin.registrations.show', [
+            'registration' => $registration,
         ]);
     }
 }

@@ -36,11 +36,12 @@ Route::middleware(['auth', 'is_user'])->group(function () {
 
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations.index');
+
+    Route::get('/registrations/{registration}', [AdminRegistrationController::class, 'show'])->name('registrations.show');
     
     Route::post('/registrations/{registration}/accept', [RegistrationDecisionController::class, 'accept'])->name('registrations.accept');
     Route::post('/registrations/{registration}/reject', [RegistrationDecisionController::class, 'reject'])->name('registrations.reject');
-    Route::post('/registrations/invite', [RegistrationDecisionController::class, 'invite'])
-    ->name('registrations.invite');
+    Route::post('/registrations/invite', [RegistrationDecisionController::class, 'invite'])->name('registrations.invite');
 
 
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
