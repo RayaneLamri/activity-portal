@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AdminRegistrationIndexRequest extends FormRequest
 {
@@ -25,7 +26,9 @@ class AdminRegistrationIndexRequest extends FormRequest
         return [
             'search' => ['nullable', 'string', 'max:120'],
             'city' => ['nullable', 'string', 'max:120'],
-            'status' => ['nullable', 'string'],
+            'from' => ['nullable', 'date'],
+            'until' => ['nullable', 'date', 'after_or_equal:from'],
+            'activity_status' => ['nullable', Rule::in(['active', 'inactive'])],
         ];
     }
 }

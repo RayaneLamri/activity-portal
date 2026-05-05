@@ -1,86 +1,133 @@
 <x-app-layout>
     <h1>Admin registrations</h1>
 
-    @foreach ($activities as $activity)
-    <section>
-        <h2>{{ $activity->title }}</h2>
+    <form method="GET" action="{{ route('admin.registrations.index') }}">
+        <input
+        type="text"
+        name="search"
+        value="{{ request('search') }}"
+        placeholder="Search activity"
+        >
 
-        <p>
-            {{ $activity->city }}
-            -
-            {{ $activity->starts_on }} to {{ $activity->ends_on }}
-        </p>
+        <select name="city">
+            <option value="">All cities</option>
+            @foreach ($cities as $city)
+            <option value="{{ $city }}" @selected(request('city') === $city)>
+                {{ $city }}
+            </option>
+            @endforeach
+        </select>
 
-        <p>
-            Capacity:
-            {{ $activity->acceptedRegistrationsCount() }} / {{ $activity->capacity }}
-        </p>
+        <input
+        type="date"
+        name="from"
+        value="{{ request('from') }}"
+        >
 
-        <form method="POST" action="{{ route('admin.registrations.invite') }}">
-            @csrf
+        <input
+        type="date"
+        name="until"
+        value="{{ request('until') }}"
+        >
 
-            <input type="hidden" name="activity_id" value="{{ $activity->id }}">
+        <select name="activity_status">
+            <option value="">All statuses</option>
+            <option value="active" @selected(request('activity_status') === 'active')>
+                Active
+            </option>
+            <option value="inactive" @selected(request('activity_status') === 'inactive')>
+                Inactive
+            </option>
+        </select>
 
-            <select name="user_id" required>
-                <option value="">Choose user</option>
-                @foreach ($users as $user)
-                <option value="{{ $user->id }}">
-                    {{ $user->name }} - {{ $user->email }}
-                </option>
-                @endforeach
-            </select>
+        <button type="submit">Filter</button>
 
-            <input type="text" name="comment" placeholder="Comment">
+        <a href="{{ route('admin.registrations.index') }}">Reset</a>
+    </form>
 
-            <button type="submit">Invite</button>
-        </form>
+    @if ($activities->isEmpty())
+    <p>No activities found.</p>
+    @else
+        @foreach ($activities as $activity)
+        <section>
+            <h2>{{ $activity->title }}</h2>
 
-        @if ($activity->registrations->isEmpty())
-        <p>No registrations yet.</p>
-        @else
-        <table>
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Requested at</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+            <p>
+                {{ $activity->city }}
+                -
+                {{ $activity->starts_on }} to {{ $activity->ends_on }}
+            </p>
 
-            <tbody>
-                @foreach ($activity->registrations as $registration)
-                <tr>
-                    <td>{{ $registration->user->name }}</td>
-                    <td>{{ $registration->user->email }}</td>
-                    <td>{{ $registration->status }}</td>
-                    <td>{{ $registration->date }}</td>
-                    <td>
-                        <a href="{{ route('admin.registrations.show', $registration) }}">
-                            View
-                        </a>
-                        @if ($registration->isRequested() || $registration->isInvited())
-                        <form method="POST" action="{{ route('admin.registrations.accept', $registration) }}">
-                            @csrf
-                            <button type="submit">Accept</button>
-                        </form>
+            <p>
+                Capacity:
+                {{ $activity->acceptedRegistrationsCount() }} / {{ $activity->capacity }}
+            </p>
 
-                        <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}">
-                            @csrf
-                            <button type="submit">Reject</button>
-                        </form>
-                        @else
-                        No action
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        @endif
-    </section>
-    @endforeach
+            <form method="POST" action="{{ route('admin.registrations.invite') }}">
+                @csrf
 
+                <input type="hidden" name="activity_id" value="{{ $activity->id }}">
+
+                <select name="user_id" required>
+                    <option value="">Choose user</option>
+                    @foreach ($users as $user)
+                    <option value="{{ $user->id }}">
+                        {{ $user->name }} - {{ $user->email }}
+                    </option>
+                    @endforeach
+                </select>
+
+                <input type="text" name="comment" placeholder="Comment">
+
+                <button type="submit">Invite</button>
+            </form>
+
+            @if ($activity->registrations->isEmpty())
+            <p>No registrations yet.</p>
+            @else
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Requested at</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach ($activity->registrations as $registration)
+                    <tr>
+                        <td>{{ $registration->user->name }}</td>
+                        <td>{{ $registration->user->email }}</td>
+                        <td>{{ $registration->status }}</td>
+                        <td>{{ $registration->date }}</td>
+                        <td>
+                            <a href="{{ route('admin.registrations.show', $registration) }}">
+                                View
+                            </a>
+                            @if ($registration->isRequested() || $registration->isInvited())
+                            <form method="POST" action="{{ route('admin.registrations.accept', $registration) }}">
+                                @csrf
+                                <button type="submit">Accept</button>
+                            </form>
+
+                            <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}">
+                                @csrf
+                                <button type="submit">Reject</button>
+                            </form>
+                            @else
+                            No action
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @endif
+        </section>
+        @endforeach
+    @endif
     {{ $activities->links() }}
 </x-app-layout>

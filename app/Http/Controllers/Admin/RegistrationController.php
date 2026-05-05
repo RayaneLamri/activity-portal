@@ -19,8 +19,41 @@ class RegistrationController extends Controller
             ->with('user')
             ->orderBy('date'),
         ])
+        ->when($request->filled('search'), function ($query) use ($request) {
+            $search = $request->input('search');
+
+            $query->where(function ($query) use ($search) {
+                $query
+                ->where('title', 'like', "%{$search}%")
+                ->orWhere('external_reference', 'like', "%{$search}%")
+                ->orWhere('location_name', 'like', "%{$search}%");
+            });
+        })
+        ->when($request->filled('city'), function ($query) use ($request) {
+            $query->where('city', $request->input('city'));
+        })
+        ->when($request->filled('from'), function ($query) use ($request) {
+            $query->whereDate('starts_on', '>=', $request->date('from'));
+        })
+        ->when($request->filled('until'), function ($query) use ($request) {
+            $query->whereDate('starts_on', '<=', $request->date('until'));
+        })
+        ->when($request->input('activity_status') === 'active', function ($query) {
+            $query->where('is_active', true);
+        })
+        ->when($request->input('activity_status') === 'inactive', function ($query) {
+            $query->where('is_active', false);
+        })
         ->orderBy('starts_on')
-        ->paginate(12);
+        ->orderBy('title')
+        ->paginate(12)
+        ->withQueryString();
+
+        $cities = Activity::query()
+        ->whereNotNull('city')
+        ->distinct()
+        ->orderBy('city')
+        ->pluck('city');
 
         $users = User::query()
         ->where('role', 'user')
@@ -30,6 +63,8 @@ class RegistrationController extends Controller
 
         return view('admin.registrations.index', [
             'activities' => $activities,
+            'cities' => $cities,
+            'filters' => $request->validated(),
             'users' => $users,
         ]);
     }
