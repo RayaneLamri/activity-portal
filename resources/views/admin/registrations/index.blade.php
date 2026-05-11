@@ -1,133 +1,65 @@
 <x-app-layout>
-    <h1>Admin registrations</h1>
+    <x-slot name="header">
+        <div class="row g-3 mb-4 align-items-center justify-content-between">
+            <div class="col-auto">
+                <h1 class="app-page-title mb-0">Admin Registrations</h1>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('admin.exports.upcoming-activities') }}" class="btn app-btn-secondary">
+                    <i class="fa-solid fa-download me-1"></i>
+                    Export Future Activities
+                </a>
+            </div>
+        </div>
+    </x-slot>
 
-    <form method="GET" action="{{ route('admin.registrations.index') }}">
-        <input
-        type="text"
-        name="search"
-        value="{{ request('search') }}"
-        placeholder="Search activity"
-        >
+    <div class="app-card app-card-settings shadow-sm p-4 mb-4">
+        <div class="app-card-body">
+            <form method="GET" action="{{ route('admin.registrations.index') }}" class="row g-3 align-items-end" data-live-filter-form>
+                <div class="col-12 col-lg-4">
+                    <input id="search" type="search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="Search camp, reference, location">
+                </div>
 
-        <select name="city">
-            <option value="">All cities</option>
-            @foreach ($cities as $city)
-            <option value="{{ $city }}" @selected(request('city') === $city)>
-                {{ $city }}
-            </option>
-            @endforeach
-        </select>
+                <div class="col-12 col-md-3 col-lg-2">
+                    <select id="city" name="city" class="form-select">
+                        <option value="">All cities</option>
+                        @foreach ($cities as $city)
+                            <option value="{{ $city }}" @selected(($filters['city'] ?? null) === $city)>{{ $city }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-        <input
-        type="date"
-        name="from"
-        value="{{ request('from') }}"
-        >
+                <div class="col-6 col-md-3 col-lg-2">
+                    <input id="from" type="date" name="from" class="form-control" value="{{ $filters['from'] ?? '' }}" aria-label="From date">
+                </div>
 
-        <input
-        type="date"
-        name="until"
-        value="{{ request('until') }}"
-        >
+                <div class="col-6 col-md-3 col-lg-2">
+                    <input id="until" type="date" name="until" class="form-control" value="{{ $filters['until'] ?? '' }}" aria-label="Until date">
+                </div>
 
-        <select name="activity_status">
-            <option value="">All statuses</option>
-            <option value="active" @selected(request('activity_status') === 'active')>
-                Active
-            </option>
-            <option value="inactive" @selected(request('activity_status') === 'inactive')>
-                Inactive
-            </option>
-        </select>
+                <div class="col-12 col-md-3 col-lg-2">
+                    <select id="activity_status" name="activity_status" class="form-select">
+                        <option value="">All statuses</option>
+                        <option value="active" @selected(($filters['activity_status'] ?? null) === 'active')>Active</option>
+                        <option value="inactive" @selected(($filters['activity_status'] ?? null) === 'inactive')>Inactive</option>
+                    </select>
+                </div>
 
-        <button type="submit">Filter</button>
-
-        <a href="{{ route('admin.registrations.index') }}">Reset</a>
-    </form>
-
-    @if ($activities->isEmpty())
-    <p>No activities found.</p>
-    @else
-        @foreach ($activities as $activity)
-        <section>
-            <h2>{{ $activity->title }}</h2>
-
-            <p>
-                {{ $activity->city }}
-                -
-                {{ $activity->starts_on }} to {{ $activity->ends_on }}
-            </p>
-
-            <p>
-                Capacity:
-                {{ $activity->acceptedRegistrationsCount() }} / {{ $activity->capacity }}
-            </p>
-
-            <form method="POST" action="{{ route('admin.registrations.invite') }}">
-                @csrf
-
-                <input type="hidden" name="activity_id" value="{{ $activity->id }}">
-
-                <select name="user_id" required>
-                    <option value="">Choose user</option>
-                    @foreach ($users as $user)
-                    <option value="{{ $user->id }}">
-                        {{ $user->name }} - {{ $user->email }}
-                    </option>
-                    @endforeach
-                </select>
-
-                <input type="text" name="comment" placeholder="Comment">
-
-                <button type="submit">Invite</button>
+                <div class="col-auto">
+                    <button type="button" class="btn app-btn-secondary" data-live-filter-reset>Reset</button>
+                </div>
             </form>
+        </div>
+    </div>
 
-            @if ($activity->registrations->isEmpty())
-            <p>No registrations yet.</p>
-            @else
-            <table>
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Requested at</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+    <div data-overview-results>
+        @include('admin.registrations.partials.overview-results')
+    </div>
 
-                <tbody>
-                    @foreach ($activity->registrations as $registration)
-                    <tr>
-                        <td>{{ $registration->user->name }}</td>
-                        <td>{{ $registration->user->email }}</td>
-                        <td>{{ $registration->status }}</td>
-                        <td>{{ $registration->date }}</td>
-                        <td>
-                            <a href="{{ route('admin.registrations.show', $registration) }}">
-                                View
-                            </a>
-                            @if ($registration->isRequested() || $registration->isInvited())
-                            <form method="POST" action="{{ route('admin.registrations.accept', $registration) }}">
-                                @csrf
-                                <button type="submit">Accept</button>
-                            </form>
+    <div class="modal fade" id="registrations-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" data-registrations-modal-content></div>
+        </div>
+    </div>
 
-                            <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}">
-                                @csrf
-                                <button type="submit">Reject</button>
-                            </form>
-                            @else
-                            No action
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @endif
-        </section>
-        @endforeach
-    @endif
-    {{ $activities->links() }}
 </x-app-layout>

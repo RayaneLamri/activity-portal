@@ -9,6 +9,7 @@ use App\Models\Activity;
 use App\Models\Registration;
 use App\Models\User;
 use App\Services\RegistrationService;
+use Illuminate\Http\JsonResponse;
 
 class RegistrationDecisionController extends Controller
 {
@@ -37,6 +38,15 @@ class RegistrationDecisionController extends Controller
     {
         $this->registrationService->accept($registration, request()->user());
 
+        if (request()->expectsJson()) {
+            return new JsonResponse([
+                'message' => 'Registration accepted.',
+                'registration_id' => $registration->id,
+                'activity_id' => $registration->activity_id,
+                'status' => $registration->status,
+            ]);
+        }
+
         return redirect()
         ->route('admin.registrations.index')
         ->with('status', 'Registration accepted.');
@@ -53,6 +63,15 @@ class RegistrationDecisionController extends Controller
             request()->user(),
             $validated['comment'] ?? null,
         );
+
+        if (request()->expectsJson()) {
+            return new JsonResponse([
+                'message' => 'Registration rejected.',
+                'registration_id' => $registration->id,
+                'activity_id' => $registration->activity_id,
+                'status' => $registration->status,
+            ]);
+        }
 
         return redirect()
         ->route('admin.registrations.index')

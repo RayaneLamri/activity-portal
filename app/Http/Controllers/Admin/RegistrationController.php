@@ -8,6 +8,7 @@ use App\Http\Requests\AdminRegistrationIndexRequest;
 use App\Models\Activity;
 use App\Models\Registration;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 
 class RegistrationController extends Controller
 {
@@ -61,11 +62,43 @@ class RegistrationController extends Controller
         ->orderBy('name')
         ->get();
 
-        return view('admin.registrations.index', [
+        $data = [
             'activities' => $activities,
             'cities' => $cities,
             'filters' => $request->validated(),
             'users' => $users,
+        ];
+
+        if ($request->expectsJson()) {
+            return new JsonResponse([
+                'html' => view('admin.registrations.partials.overview-results', $data)->render(),
+            ]);
+        }
+
+        return view('admin.registrations.index', $data);
+    }
+
+    public function activityRegistrations(Activity $activity, string $status): JsonResponse
+    {
+        abort_unless(in_array($status, [
+            Registration::INVITED,
+            Registration::REQUESTED,
+            Registration::ACCEPTED,
+        ], true), 404);
+
+        $activity->load([
+            'registrations' => fn ($query) => $query
+                ->where('status', $status)
+                ->with('user')
+                ->orderBy('created_at'),
+        ]);
+
+        return new JsonResponse([
+            'html' => view('admin.registrations.partials.activity-registrations-modal', [
+                'activity' => $activity,
+                'status' => $status,
+                'registrations' => $activity->registrations,
+            ])->render(),
         ]);
     }
 

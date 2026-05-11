@@ -8,6 +8,7 @@ use App\Http\Controllers\UserPreferenceController;
 use App\Http\Controllers\Admin\RegistrationController as AdminRegistrationController;
 use App\Http\Controllers\Admin\RegistrationDecisionController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\UpcomingActivityExportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,7 +37,7 @@ Route::middleware(['auth', 'is_user'])->group(function () {
 
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations.index');
-
+    Route::get('/activities/{activity}/registrations/{status}', [AdminRegistrationController::class, 'activityRegistrations'])->name('activities.registrations');
     Route::get('/registrations/{registration}', [AdminRegistrationController::class, 'show'])->name('registrations.show');
     
     Route::post('/registrations/{registration}/accept', [RegistrationDecisionController::class, 'accept'])->name('registrations.accept');
@@ -46,6 +47,8 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
 
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/visibility', [AdminUserController::class, 'toggleVisibility'])->name('users.toggle-visibility');
+
+    Route::get('/exports/upcoming-activities', UpcomingActivityExportController::class)->name('exports.upcoming-activities');
 });
 
 require __DIR__.'/auth.php';

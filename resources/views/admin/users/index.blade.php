@@ -1,40 +1,57 @@
 <x-app-layout>
-    <h1>Users</h1>
+    <x-slot name="header">
+        <div class="row g-3 mb-4 align-items-center justify-content-between">
+            <div class="col-auto">
+                <h1 class="app-page-title mb-0">Users</h1>
+            </div>
+        </div>
+    </x-slot>
 
-    @foreach ($users as $user)
-        <section>
-            <h2>{{ $user->name }}</h2>
+    <div class="app-card app-card-orders-table shadow-sm mb-4">
+        <div class="app-card-body">
+            <div class="table-responsive">
+                <table class="table app-table-hover mb-0 text-left">
+                    <thead>
+                        <tr>
+                            <th class="cell">User</th>
+                            <th class="cell">Visibility</th>
+                            <th class="cell">Preference</th>
+                            <th class="cell">Registrations</th>
+                            <th class="cell">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $user)
+                            <tr>
+                                <td class="cell">
+                                    <span class="d-block fw-semibold">{{ $user->name }}</span>
+                                    <span class="note">{{ $user->email }}</span>
+                                </td>
+                                <td class="cell">
+                                    <span class="badge {{ $user->is_visible ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $user->is_visible ? 'Visible' : 'Hidden' }}
+                                    </span>
+                                </td>
+                                <td class="cell">{{ $user->preference?->preferred_city ?: 'No saved preference' }}</td>
+                                <td class="cell">{{ $user->registrations_count }}</td>
+                                <td class="cell">
+                                    <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn-sm app-btn-secondary">
+                                            {{ $user->is_visible ? 'Hide' : 'Show' }}
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-            <p>{{ $user->email }}</p>
-
-            <p>
-                Visibility:
-                {{ $user->is_visible ? 'Visible' : 'Hidden' }}
-            </p>
-
-            <p>
-                Registrations:
-                {{ $user->registrations_count }}
-            </p>
-
-            @if ($user->preference)
-                <p>Preferred city: {{ $user->preference->preferred_city ?? 'Any' }}</p>
-                <p>Age: {{ $user->preference->preferred_min_age }} - {{ $user->preference->preferred_max_age }}</p>
-                <p>Available: {{ $user->preference->available_from }} to {{ $user->preference->available_until }}</p>
-            @else
-                <p>No preferences yet.</p>
-            @endif
-
-            <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}">
-                @csrf
-                @method('PATCH')
-
-                <button type="submit">
-                    {{ $user->is_visible ? 'Hide' : 'Show' }}
-                </button>
-            </form>
-        </section>
-    @endforeach
-
-    {{ $users->links() }}
+    <nav class="app-pagination">
+        {{ $users->links('pagination::bootstrap-5') }}
+    </nav>
 </x-app-layout>
