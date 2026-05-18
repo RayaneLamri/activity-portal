@@ -65,11 +65,6 @@
                                     <span class="note" data-capacity-note>{{ $remainingCapacity }} remaining</span>
                                 @endif
                             </td>
-                            <td class="cell">
-                                <span class="badge {{ $activity->is_active ? 'bg-success' : 'bg-secondary' }}">
-                                    {{ $activity->is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                            </td>
                         </tr>
                     @empty
                         <tr>

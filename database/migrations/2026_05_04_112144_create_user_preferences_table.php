@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('user_preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
-            $table->string('preferred_city')->nullable();
-            $table->unsignedTinyInteger('preferred_min_age')->nullable();
-            $table->unsignedTinyInteger('preferred_max_age')->nullable();
-            $table->date('available_from')->nullable();
-            $table->date('available_until')->nullable();
+            $table->string('city')->nullable();
+            $table->unsignedTinyInteger('min_age')->nullable();
+            $table->unsignedTinyInteger('max_age')->nullable();
+            $table->date('starts_on')->nullable();
+            $table->date('ends_on')->nullable();
             $table->timestamps();
         });
     }

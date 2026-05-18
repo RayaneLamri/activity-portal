@@ -118,7 +118,6 @@ class UpcomingActivitiesExport implements FromCollection, ShouldAutoSize, WithEv
                     ->where('status', Registration::ACCEPTED)
                     ->whereHas('user', fn ($userQuery) => $userQuery->where('is_visible', true)),
             ])
-            ->where('is_active', true)
             ->whereDate('starts_on', '>=', now()->toDateString())
             ->orderBy('starts_on')
             ->orderBy('title')

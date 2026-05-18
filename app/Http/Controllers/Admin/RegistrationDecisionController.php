@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Requests\AdminInviteRegistrationRequest;
 use App\Models\Activity;
 use App\Models\Registration;
@@ -26,12 +25,11 @@ class RegistrationDecisionController extends Controller
             $user,
             $activity,
             $request->user(),
-            $request->input('comment') ?? null,
         );
 
         return redirect()
-        ->route('admin.registrations.index')
-        ->with('status', 'User invited to activity.');
+            ->back()
+            ->with('status', 'User invited to activity.');
     }
 
     public function accept(Registration $registration)
@@ -48,20 +46,15 @@ class RegistrationDecisionController extends Controller
         }
 
         return redirect()
-        ->route('admin.registrations.index')
-        ->with('status', 'Registration accepted.');
+            ->route('admin.registrations.index')
+            ->with('status', 'Registration accepted.');
     }
 
     public function reject(Registration $registration)
     {
-        $validated = request()->validate([
-            'comment' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $this->registrationService->reject(
             $registration,
             request()->user(),
-            $validated['comment'] ?? null,
         );
 
         if (request()->expectsJson()) {
@@ -74,7 +67,7 @@ class RegistrationDecisionController extends Controller
         }
 
         return redirect()
-        ->route('admin.registrations.index')
-        ->with('status', 'Registration rejected.');
+            ->route('admin.registrations.index')
+            ->with('status', 'Registration rejected.');
     }
 }

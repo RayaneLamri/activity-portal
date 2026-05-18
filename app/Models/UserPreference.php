@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
-class UserPreference extends Model 
+class UserPreference extends Model
 {
-	public $guarded = [];
+    public $guarded = [];
 
-	public function user()
+    protected function casts(): array
+    {
+        return [
+            'starts_on' => 'date',
+            'ends_on' => 'date',
+        ];
+    }
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

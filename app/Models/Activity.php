@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Registration;
 
 class Activity extends Model
 {
@@ -16,7 +15,6 @@ class Activity extends Model
         return [
             'starts_on' => 'date',
             'ends_on' => 'date',
-            'is_active' => 'boolean',
         ];
     }
 
@@ -28,8 +26,8 @@ class Activity extends Model
     public function acceptedRegistrationsCount()
     {
         return $this->registrations()
-        ->where('status', Registration::ACCEPTED)
-        ->count();
+            ->where('status', Registration::ACCEPTED)
+            ->count();
     }
 
     public function remainingCapacity()

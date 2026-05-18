@@ -23,7 +23,6 @@ return new class extends Migration
             $table->date('starts_on')->index();
             $table->date('ends_on');
             $table->unsignedInteger('capacity')->nullable();
-            $table->boolean('is_active')->default(true)->index();
         });
     }
 

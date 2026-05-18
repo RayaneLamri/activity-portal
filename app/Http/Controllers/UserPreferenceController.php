@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\UpdateUserPreferenceRequest;
 use App\Models\Activity;
 
@@ -12,12 +11,10 @@ class UserPreferenceController extends Controller
     {
         return view('preferences.edit', [
             'preference' => request()->user()->preference,
-            'cities' => Activity::query()
-            ->where('is_active', true)
-            ->whereNotNull('city')
-            ->distinct()
-            ->orderBy('city')
-            ->pluck('city'),
+            'cities' => $cities = Activity::query()
+                ->distinct()
+                ->orderBy('city')
+                ->pluck('city')
         ]);
     }
 
@@ -29,7 +26,7 @@ class UserPreferenceController extends Controller
         );
 
         return redirect()
-        ->route('preferences.edit')
-        ->with('status', 'Preferences updated.');
+            ->route('preferences.edit')
+            ->with('status', 'Preferences updated.');
     }
 }

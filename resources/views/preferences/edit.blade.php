@@ -18,34 +18,34 @@
                         @method('PUT')
 
                         <div class="mb-3">
-                            <x-input-label for="preferred_city" value="Preferred city" />
-                            <select id="preferred_city" name="preferred_city" class="form-select">
+                            <x-input-label for="city" value="Preferred city" />
+                            <select id="city" name="city" class="form-select">
                                 <option value="">No preference</option>
                                 @foreach ($cities as $city)
-                                    <option value="{{ $city }}" @selected(old('preferred_city', $preference?->preferred_city) === $city)>{{ $city }}</option>
+                                    <option value="{{ $city }}" @selected(old('city', $preference?->city) === $city)>{{ $city }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <x-input-label for="preferred_min_age" value="Preferred minimum age" />
-                                <x-text-input id="preferred_min_age" name="preferred_min_age" type="number" :value="old('preferred_min_age', $preference?->preferred_min_age)" />
+                                <x-input-label for="min_age" value="Preferred minimum age" />
+                                <x-text-input id="min_age" name="min_age" type="number" :value="old('min_age', $preference?->min_age)" />
                             </div>
                             <div class="col-md-6">
-                                <x-input-label for="preferred_max_age" value="Preferred maximum age" />
-                                <x-text-input id="preferred_max_age" name="preferred_max_age" type="number" :value="old('preferred_max_age', $preference?->preferred_max_age)" />
+                                <x-input-label for="max_age" value="Preferred maximum age" />
+                                <x-text-input id="max_age" name="max_age" type="number" :value="old('max_age', $preference?->max_age)" />
                             </div>
                         </div>
 
                         <div class="row g-3 mt-1">
                             <div class="col-md-6">
-                                <x-input-label for="available_from" value="Available from" />
-                                <x-text-input id="available_from" name="available_from" type="date" :value="old('available_from', optional($preference?->available_from)->format('Y-m-d'))" />
+                                <x-input-label for="starts_on" value="Available from" />
+                                <x-text-input id="starts_on" name="starts_on" type="date" :value="old('starts_on', optional($preference?->starts_on)->format('Y-m-d'))" />
                             </div>
                             <div class="col-md-6">
-                                <x-input-label for="available_until" value="Available until" />
-                                <x-text-input id="available_until" name="available_until" type="date" :value="old('available_until', optional($preference?->available_until)->format('Y-m-d'))" />
+                                <x-input-label for="ends_on" value="Available until" />
+                                <x-text-input id="ends_on" name="ends_on" type="date" :value="old('ends_on', optional($preference?->ends_on)->format('Y-m-d'))" />
                             </div>
                         </div>
 

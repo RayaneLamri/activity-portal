@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Rob Moerman',
             'email' => 'admin@example.com',
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         $usersData = [
@@ -50,8 +50,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Brussels',
                 'min_age' => 8,
                 'max_age' => 12,
-                'starts_on' => '2026-05-04',
-                'ends_on' => '2026-05-08',
+                'starts_on' => '2026-07-04',
+                'ends_on' => '2026-07-08',
                 'capacity' => 2,
             ],
             [
@@ -62,8 +62,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Namur',
                 'min_age' => 7,
                 'max_age' => 11,
-                'starts_on' => '2026-05-18',
-                'ends_on' => '2026-05-22',
+                'starts_on' => '2026-07-18',
+                'ends_on' => '2026-07-22',
                 'capacity' => 4,
             ],
             [
@@ -197,7 +197,6 @@ class DatabaseSeeder extends Seeder
                 'starts_on' => '2026-09-05',
                 'ends_on' => '2026-09-06',
                 'capacity' => 5,
-                'is_active' => false,
             ],
             [
                 'external_reference' => 'ACT-1014',
@@ -212,7 +211,7 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 4,
             ],
         ];
-        
+
         $activities = [];
 
         foreach ($activitiesData as $activityData) {
@@ -221,32 +220,32 @@ class DatabaseSeeder extends Seeder
 
         $preferences = [
             [
-                'preferred_city' => 'Brussels',
-                'preferred_min_age' => 8,
-                'preferred_max_age' => 13,
-                'available_from' => '2026-05-01',
-                'available_until' => '2026-07-31'
+                'city' => 'Brussels',
+                'min_age' => 8,
+                'max_age' => 13,
+                'starts_on' => '2026-07-01',
+                'ends_on' => '2026-07-31',
             ],
             [
-                'preferred_city' => 'Leuven',
-                'preferred_min_age' => 11,
-                'preferred_max_age' => 16,
-                'available_from' => '2026-06-01',
-                'available_until' => '2026-08-31'
+                'city' => 'Leuven',
+                'min_age' => 11,
+                'max_age' => 16,
+                'starts_on' => '2026-06-01',
+                'ends_on' => '2026-08-31',
             ],
             [
-                'preferred_city' => 'Ghent',
-                'preferred_min_age' => 9,
-                'preferred_max_age' => 14,
-                'available_from' => '2026-06-15',
-                'available_until' => '2026-09-01'
+                'city' => 'Ghent',
+                'min_age' => 9,
+                'max_age' => 14,
+                'starts_on' => '2026-06-15',
+                'ends_on' => '2026-09-01',
             ],
             [
-                'preferred_city' => 'Namur',
-                'preferred_min_age' => 12,
-                'preferred_max_age' => 16,
-                'available_from' => '2026-05-15',
-                'available_until' => '2026-07-15'
+                'city' => 'Namur',
+                'min_age' => 12,
+                'max_age' => 16,
+                'starts_on' => '2026-07-15',
+                'ends_on' => '2026-07-15',
             ],
         ];
 

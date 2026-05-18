@@ -56,7 +56,6 @@
 
                                     <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}" class="d-flex gap-2" data-live-registration-form data-action-type="reject">
                                         @csrf
-                                        <input type="hidden" name="comment" value="Rejected from the activity overview modal.">
                                         <button type="submit" class="btn btn-sm btn-danger">Reject</button>
                                     </form>
                                 @endif

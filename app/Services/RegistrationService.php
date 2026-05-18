@@ -5,21 +5,17 @@ namespace App\Services;
 use App\Models\Activity;
 use App\Models\Registration;
 use App\Models\User;
+use App\Notifications\RegistrationAcceptedNotification;
+use App\Notifications\RegistrationRejectedNotification;
 use Illuminate\Validation\ValidationException;
 
 class RegistrationService
 {
     public function createRequest(User $user, Activity $activity)
     {
-        if (! $activity->is_active) {
-            throw ValidationException::withMessages([
-                'activity_id' => 'This activity is inactive.',
-            ]);
-        }
-
         $exists = Registration::where('user_id', $user->id)
-        ->where('activity_id', $activity->id)
-        ->exists();
+            ->where('activity_id', $activity->id)
+            ->exists();
 
         if ($exists) {
             throw ValidationException::withMessages([
@@ -36,12 +32,6 @@ class RegistrationService
 
     public function createInvite(User $user, Activity $activity)
     {
-        if (! $activity->is_active) {
-            throw ValidationException::withMessages([
-                'activity_id' => 'This activity is inactive.',
-            ]);
-        }
-
         if (! $user->is_visible) {
             throw ValidationException::withMessages([
                 'user_id' => 'Hidden users cannot be invited.',
@@ -49,9 +39,9 @@ class RegistrationService
         }
 
         $exists = Registration::query()
-        ->where('user_id', $user->id)
-        ->where('activity_id', $activity->id)
-        ->exists();
+            ->where('user_id', $user->id)
+            ->where('activity_id', $activity->id)
+            ->exists();
 
         if ($exists) {
             throw ValidationException::withMessages([
@@ -68,7 +58,6 @@ class RegistrationService
         $registration->events()->create([
             'user_id' => $user->id,
             'action' => Registration::INVITED,
-            'comment' => $comment,
             'date' => now(),
         ]);
 
@@ -105,6 +94,10 @@ class RegistrationService
             'date' => now(),
         ]);
 
+        $registration->user->notify(
+            new RegistrationAcceptedNotification($registration)
+        );
+
         return $registration;
     }
 
@@ -125,6 +118,10 @@ class RegistrationService
             'action' => Registration::REJECTED,
             'date' => now(),
         ]);
+
+        $registration->user->notify(
+            new RegistrationRejectedNotification($registration)
+        );
 
         return $registration;
     }

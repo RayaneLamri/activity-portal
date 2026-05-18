@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('registration_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('action');
-            $table->text('comment')->nullable();
             $table->timestamp('date')->useCurrent();
 
             $table->index(['registration_id', 'date']);

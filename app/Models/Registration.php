@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Activity;
-use App\Models\User;
-use App\Models\RegistrationEvent;
 use App\Models\Concerns\HasRegistrationStatuses;
+use Illuminate\Database\Eloquent\Model;
 
 class Registration extends Model
 {
     use HasRegistrationStatuses;
-    
+
     public const CREATED_AT = null;
+
     public const UPDATED_AT = 'date';
 
     protected $guarded = [];
@@ -21,12 +19,12 @@ class Registration extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     public function activity()
     {
         return $this->belongsTo(Activity::class);
     }
-    
+
     public function events()
     {
         return $this->hasMany(RegistrationEvent::class);

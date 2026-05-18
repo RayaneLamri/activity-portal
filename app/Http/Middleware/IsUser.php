@@ -15,7 +15,7 @@ class IsUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->user()?->isUser()) {
+        if (! auth()->user()?->isUser()) {
             abort(403);
         }
 

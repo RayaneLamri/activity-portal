@@ -32,16 +32,27 @@
                                         {{ $user->is_visible ? 'Visible' : 'Hidden' }}
                                     </span>
                                 </td>
-                                <td class="cell">{{ $user->preference?->preferred_city ?: 'No saved preference' }}</td>
+                                <td class="cell">{{ $user->preference?->city ?: 'No saved preference' }}</td>
                                 <td class="cell">{{ $user->registrations_count }}</td>
                                 <td class="cell">
-                                    <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button
+                                            type="button"
+                                            class="btn-sm app-btn-primary"
+                                            data-user-invite-modal-url="{{ route('admin.users.invite-options', $user) }}"
+                                            @disabled(! $user->is_visible)
+                                        >
+                                            Invite
+                                        </button>
+
+                                        <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn-sm app-btn-secondary">
-                                            {{ $user->is_visible ? 'Hide' : 'Show' }}
-                                        </button>
-                                    </form>
+                                            <button type="submit" class="btn-sm app-btn-secondary">
+                                                {{ $user->is_visible ? 'Hide' : 'Show' }}
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -54,4 +65,10 @@
     <nav class="app-pagination">
         {{ $users->links('pagination::bootstrap-5') }}
     </nav>
+
+    <div class="modal fade" id="user-invite-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" data-user-invite-modal-content></div>
+        </div>
+    </div>
 </x-app-layout>

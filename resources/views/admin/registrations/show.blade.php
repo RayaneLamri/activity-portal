@@ -52,14 +52,10 @@
                             <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>
                                     <div class="fw-semibold text-uppercase small">{{ $event->action }}</div>
-                                    <div class="text-muted small">{{ $event->actor?->name ?? 'System' }}</div>
+                                    <div class="text-muted small">{{ $event->user?->name ?? 'System' }}</div>
                                 </div>
                                 <div class="text-muted small">{{ \Illuminate\Support\Carbon::parse($event->created_at)->format('d M Y H:i') }}</div>
                             </div>
-
-                            @if ($event->comment)
-                                <div class="mt-3 p-3 bg-light rounded">{{ $event->comment }}</div>
-                            @endif
                         </div>
                     @empty
                         <div class="text-muted">No admin history yet for this registration.</div>

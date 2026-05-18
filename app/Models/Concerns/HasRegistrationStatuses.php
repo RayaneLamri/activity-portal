@@ -5,8 +5,11 @@ namespace App\Models\Concerns;
 trait HasRegistrationStatuses
 {
     public const REQUESTED = 'requested';
+
     public const INVITED = 'invited';
+
     public const ACCEPTED = 'accepted';
+
     public const REJECTED = 'rejected';
 
     public function isRequested(): bool

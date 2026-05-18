@@ -1,59 +1,102 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Activity Portal
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Activity Portal est une version simplifiee et reconstruite d'une application metier developpee dans un contexte professionnel pour un organisme de colonies de vacances.
 
-## About Laravel
+Le besoin initial etait de permettre a des moniteurs de consulter les camps disponibles, d'indiquer leurs preferences de lieu, de periode et de tranche d'age, puis de demander une inscription. Cote administration, l'objectif etait de centraliser le suivi des demandes, d'inviter les moniteurs les plus pertinents selon leurs preferences, de valider ou refuser les inscriptions, et d'exporter les futurs camps pour le suivi operationnel.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Stack principale : Laravel 12, PHP 8.2+, Breeze, Blade, Vite, Alpine.js, SQLite, Maatwebsite Excel.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Besoins metier et choix techniques
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Deux espaces distincts** : Laravel Breeze fournit l'authentification, completee par des roles `admin` / `moniteur` et des middlewares dedies.
+- **Recherche de camps pertinents** : les moniteurs peuvent filtrer les camps par ville, periode et tranche d'age, puis enregistrer des preferences reutilisees dans l'application.
+- **Regles d'inscription centralisees** : les demandes, invitations, acceptations, refus, doublons, capacites et profils visibles sont geres dans un service metier dedie.
+- **Administration des demandes** : l'admin peut filtrer les inscriptions, consulter les preferences des moniteurs, accepter/refuser une demande et envoyer des invitations ciblees.
+- **Export operationnel** : les futurs camps peuvent etre exportes au format Excel avec les participants acceptes.
+- **Demo locale rapide** : SQLite et les seeders fournissent des donnees couvrant plusieurs cas metier : camps disponibles, complets, inscriptions en attente, invitations et preferences variees.
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm run build
+php artisan serve
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+L'application est accessible sur :
 
-## Laravel Sponsors
+```text
+http://127.0.0.1:8000
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Comptes de demonstration
 
-### Premium Partners
+Tous les comptes utilisent le mot de passe :
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```text
+password
+```
 
-## Contributing
+Admin :
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```text
+admin@example.com
+```
 
-## Code of Conduct
+Moniteurs :
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```text
+marion@example.com
+antoine@example.com
+enzo@example.com
+maxime@example.com
+```
 
-## Security Vulnerabilities
+## Parcours de demonstration
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Parcours moniteur
 
-## License
+Se connecter avec `marion@example.com`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Consulter la liste des camps disponibles.
+2. Filtrer les camps par ville, periode ou tranche d'age.
+3. Enregistrer des preferences.
+4. Appliquer les preferences pour voir les camps correspondants.
+5. Envoyer une demande d'inscription.
+6. Consulter ses inscriptions et verifier le statut.
+
+<!-- ![Liste des camps cote moniteur](docs/screenshots/monitor-activities.png) -->
+
+### Parcours administrateur
+
+Se connecter avec `admin@example.com`.
+
+1. Ouvrir la vue admin des inscriptions.
+2. Filtrer les camps ou les demandes.
+3. Accepter ou refuser une demande.
+4. Ouvrir la page des moniteurs.
+5. Consulter les preferences d'un moniteur.
+6. Envoyer une invitation vers un camp pertinent.
+7. Exporter les futurs camps au format Excel.
+
+<!-- ![Vue admin des inscriptions](docs/screenshots/admin-registrations.png) -->
+<!-- ![Invitation ciblee](docs/screenshots/admin-invite.png) -->
+
+## Tests
+
+```bash
+composer test
+```
+
+## Ameliorations possibles
+
+- ajouter davantage de tests metier automatises
+- utiliser des Policies Laravel pour affiner les autorisations
+- envoyer les notifications via queue
+- enrichir l'historique des decisions admin
+- ajouter une CI pour lancer formatage, tests et build

@@ -25,7 +25,6 @@ class AdminInviteRegistrationRequest extends FormRequest
         return [
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'activity_id' => ['required', 'integer', 'exists:activities,id'],
-            'comment' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }
