@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\Registration;
 use App\Models\User;
 use App\Models\UserPreference;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,6 +20,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+
+        $today = CarbonImmutable::today();
+        $date = fn (int $days): string => $today->addDays($days)->toDateString();
+        $dateTime = fn (int $days, string $time): string => $today
+            ->addDays($days)
+            ->setTimeFromTimeString($time)
+            ->format('Y-m-d H:i:s');
 
         User::factory()->create([
             'name' => 'Rob Moerman',
@@ -50,8 +58,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Brussels',
                 'min_age' => 8,
                 'max_age' => 12,
-                'starts_on' => '2026-07-04',
-                'ends_on' => '2026-07-08',
+                'starts_on' => $date(16),
+                'ends_on' => $date(20),
                 'capacity' => 2,
             ],
             [
@@ -62,8 +70,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Namur',
                 'min_age' => 7,
                 'max_age' => 11,
-                'starts_on' => '2026-07-18',
-                'ends_on' => '2026-07-22',
+                'starts_on' => $date(30),
+                'ends_on' => $date(34),
                 'capacity' => 4,
             ],
             [
@@ -74,8 +82,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Leuven',
                 'min_age' => 11,
                 'max_age' => 15,
-                'starts_on' => '2026-06-02',
-                'ends_on' => '2026-06-05',
+                'starts_on' => $date(8),
+                'ends_on' => $date(11),
                 'capacity' => 3,
             ],
             [
@@ -86,8 +94,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Ghent',
                 'min_age' => 9,
                 'max_age' => 14,
-                'starts_on' => '2026-06-15',
-                'ends_on' => '2026-06-19',
+                'starts_on' => $date(21),
+                'ends_on' => $date(25),
                 'capacity' => 6,
             ],
             [
@@ -98,8 +106,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Antwerp',
                 'min_age' => 10,
                 'max_age' => 16,
-                'starts_on' => '2026-06-22',
-                'ends_on' => '2026-06-26',
+                'starts_on' => $date(28),
+                'ends_on' => $date(32),
                 'capacity' => 8,
             ],
             [
@@ -110,8 +118,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Brussels',
                 'min_age' => 10,
                 'max_age' => 15,
-                'starts_on' => '2026-07-01',
-                'ends_on' => '2026-07-03',
+                'starts_on' => $date(13),
+                'ends_on' => $date(15),
                 'capacity' => 5,
             ],
             [
@@ -122,8 +130,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Namur',
                 'min_age' => 12,
                 'max_age' => 16,
-                'starts_on' => '2026-07-06',
-                'ends_on' => '2026-07-10',
+                'starts_on' => $date(18),
+                'ends_on' => $date(22),
                 'capacity' => 4,
             ],
             [
@@ -134,8 +142,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Ghent',
                 'min_age' => 8,
                 'max_age' => 13,
-                'starts_on' => '2026-07-13',
-                'ends_on' => '2026-07-17',
+                'starts_on' => $date(25),
+                'ends_on' => $date(29),
                 'capacity' => 7,
             ],
             [
@@ -146,8 +154,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Leuven',
                 'min_age' => 13,
                 'max_age' => 17,
-                'starts_on' => '2026-07-20',
-                'ends_on' => '2026-07-24',
+                'starts_on' => $date(32),
+                'ends_on' => $date(36),
                 'capacity' => 3,
             ],
             [
@@ -158,8 +166,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Brussels',
                 'min_age' => 6,
                 'max_age' => 10,
-                'starts_on' => '2026-08-03',
-                'ends_on' => '2026-08-07',
+                'starts_on' => $date(46),
+                'ends_on' => $date(50),
                 'capacity' => 10,
             ],
             [
@@ -170,8 +178,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Antwerp',
                 'min_age' => 9,
                 'max_age' => 13,
-                'starts_on' => '2026-08-10',
-                'ends_on' => '2026-08-14',
+                'starts_on' => $date(53),
+                'ends_on' => $date(57),
                 'capacity' => null,
             ],
             [
@@ -182,8 +190,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Leuven',
                 'min_age' => 12,
                 'max_age' => 16,
-                'starts_on' => '2026-08-24',
-                'ends_on' => '2026-08-28',
+                'starts_on' => $date(67),
+                'ends_on' => $date(71),
                 'capacity' => 6,
             ],
             [
@@ -194,8 +202,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Ghent',
                 'min_age' => 10,
                 'max_age' => 15,
-                'starts_on' => '2026-09-05',
-                'ends_on' => '2026-09-06',
+                'starts_on' => $date(79),
+                'ends_on' => $date(80),
                 'capacity' => 5,
             ],
             [
@@ -206,8 +214,8 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Brussels',
                 'min_age' => 11,
                 'max_age' => 15,
-                'starts_on' => '2026-09-14',
-                'ends_on' => '2026-09-18',
+                'starts_on' => $date(88),
+                'ends_on' => $date(92),
                 'capacity' => 4,
             ],
         ];
@@ -223,29 +231,29 @@ class DatabaseSeeder extends Seeder
                 'city' => 'Brussels',
                 'min_age' => 8,
                 'max_age' => 13,
-                'starts_on' => '2026-07-01',
-                'ends_on' => '2026-07-31',
+                'starts_on' => $date(13),
+                'ends_on' => $date(43),
             ],
             [
                 'city' => 'Leuven',
                 'min_age' => 11,
                 'max_age' => 16,
-                'starts_on' => '2026-06-01',
-                'ends_on' => '2026-08-31',
+                'starts_on' => $date(7),
+                'ends_on' => $date(74),
             ],
             [
                 'city' => 'Ghent',
                 'min_age' => 9,
                 'max_age' => 14,
-                'starts_on' => '2026-06-15',
-                'ends_on' => '2026-09-01',
+                'starts_on' => $date(21),
+                'ends_on' => $date(75),
             ],
             [
                 'city' => 'Namur',
                 'min_age' => 12,
                 'max_age' => 16,
-                'starts_on' => '2026-07-15',
-                'ends_on' => '2026-07-15',
+                'starts_on' => $date(27),
+                'ends_on' => $date(27),
             ],
         ];
 
@@ -257,25 +265,24 @@ class DatabaseSeeder extends Seeder
         }
 
         $registrations = [
-            [0, 0, Registration::ACCEPTED, '2026-04-01 09:00:00'],
-            [1, 0, Registration::ACCEPTED, '2026-04-02 10:00:00'],
-            [2, 1, Registration::REQUESTED, '2026-04-03 11:00:00'],
-            [3, 1, Registration::REQUESTED, '2026-04-03 11:00:00'],
-            [4, 1, Registration::REQUESTED, '2026-04-03 11:00:00'],
-            [5, 1, Registration::REQUESTED, '2026-04-03 11:00:00'],
-            [3, 2, Registration::INVITED, '2026-04-04 12:00:00'],
-            [4, 2, Registration::ACCEPTED, '2026-04-05 13:00:00'],
-            [5, 2, Registration::REJECTED, '2026-04-06 14:00:00'],
-            [0, 3, Registration::REQUESTED, '2026-04-07 15:00:00'],
-            [1, 4, Registration::INVITED, '2026-04-08 16:00:00'],
-            [2, 5, Registration::ACCEPTED, '2026-04-09 09:30:00'],
-            [4, 6, Registration::REQUESTED, '2026-04-10 10:45:00'],
-            [5, 7, Registration::ACCEPTED, '2026-04-11 08:20:00'],
-            [0, 8, Registration::INVITED, '2026-04-12 09:10:00'],
-            [2, 9, Registration::REJECTED, '2026-04-13 10:10:00'],
-            [3, 10, Registration::REQUESTED, '2026-04-14 11:10:00'],
-            [4, 11, Registration::ACCEPTED, '2026-04-15 12:10:00'],
-            [5, 13, Registration::REQUESTED, '2026-04-16 13:10:00'],
+            [0, 0, Registration::ACCEPTED, $dateTime(0, '09:00:00')],
+            [1, 0, Registration::ACCEPTED, $dateTime(0, '10:00:00')],
+            [2, 1, Registration::REQUESTED, $dateTime(1, '11:00:00')],
+            [3, 1, Registration::REQUESTED, $dateTime(1, '11:15:00')],
+            [4, 1, Registration::REQUESTED, $dateTime(1, '11:30:00')],
+            [5, 1, Registration::REQUESTED, $dateTime(1, '11:45:00')],
+            [4, 2, Registration::ACCEPTED, $dateTime(3, '13:00:00')],
+            [5, 2, Registration::REJECTED, $dateTime(4, '14:00:00')],
+            [0, 3, Registration::REQUESTED, $dateTime(5, '15:00:00')],
+            [1, 4, Registration::INVITED, $dateTime(5, '16:00:00')],
+            [2, 5, Registration::ACCEPTED, $dateTime(6, '09:30:00')],
+            [4, 6, Registration::REQUESTED, $dateTime(7, '10:45:00')],
+            [5, 7, Registration::ACCEPTED, $dateTime(8, '08:20:00')],
+            [0, 8, Registration::INVITED, $dateTime(9, '09:10:00')],
+            [2, 9, Registration::REJECTED, $dateTime(10, '10:10:00')],
+            [3, 10, Registration::REQUESTED, $dateTime(11, '11:10:00')],
+            [4, 11, Registration::ACCEPTED, $dateTime(12, '12:10:00')],
+            [5, 13, Registration::REQUESTED, $dateTime(13, '13:10:00')],
         ];
 
         foreach ($registrations as [$userIndex, $activityIndex, $status, $date]) {

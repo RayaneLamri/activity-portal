@@ -15,6 +15,7 @@ class ActivityController extends Controller
         $preference = $user->preference;
 
         $activities = Activity::query()
+            ->whereDoesntHave('registrations', fn ($query) => $query->where('user_id', $user->id))
             ->when($request->filled('city'), fn ($query) => $query->where('city', $request->input('city'))
             )
             ->when($request->filled('age'), function ($query) use ($request) {
@@ -54,6 +55,7 @@ class ActivityController extends Controller
             ->withQueryString();
 
         $cities = Activity::query()
+            ->whereDoesntHave('registrations', fn ($query) => $query->where('user_id', $user->id))
             ->distinct()
             ->orderBy('city')
             ->pluck('city');

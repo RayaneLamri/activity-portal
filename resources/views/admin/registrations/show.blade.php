@@ -51,7 +51,9 @@
                         <div class="item border rounded p-3 mb-3">
                             <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>
-                                    <div class="fw-semibold text-uppercase small">{{ $event->action }}</div>
+                                    <div class="fw-semibold text-uppercase small">
+                                        {{ ucfirst($event->to_status ?? $event->action) }}
+                                    </div>
                                     <div class="text-muted small">{{ $event->user?->name ?? 'System' }}</div>
                                 </div>
                                 <div class="text-muted small">{{ \Illuminate\Support\Carbon::parse($event->created_at)->format('d M Y H:i') }}</div>

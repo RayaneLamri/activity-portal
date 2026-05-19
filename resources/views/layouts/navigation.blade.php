@@ -4,7 +4,7 @@
             <div class="app-header-content">
                 <div class="row justify-content-between align-items-center">
                     <div class="col-auto">
-                        <a id="sidepanel-toggler" class="sidepanel-toggler d-inline-block d-xl-none" href="#">
+                        <a class="sidepanel-toggler d-inline-block d-xl-none" href="#">
                             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img">
                                 <title>Menu</title>
                                 <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
@@ -217,6 +217,20 @@
                         </li>
                     @endif
 
+                    @if (Route::has('admin.registration-events.index') && auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.registration-events.*') ? 'active' : '' }}" href="{{ route('admin.registration-events.index') }}">
+                                <span class="nav-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-clock-history" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8.515 1.019A7 7 0 1 1 1 8a.5.5 0 0 1 1 0 6 6 0 1 0 1.757-4.243L5.5 5.5A.5.5 0 0 1 5.146 6.354H1.5A.5.5 0 0 1 1 5.854V2.207a.5.5 0 0 1 .854-.353L3.05 3.05a7 7 0 0 1 5.465-2.031z"/>
+                                        <path d="M7.5 4a.5.5 0 0 1 .5.5v3.293l2.146 2.147a.5.5 0 0 1-.708.707l-2.293-2.293A.5.5 0 0 1 7 8V4.5a.5.5 0 0 1 .5-.5z"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-link-text">Registration Events</span>
+                            </a>
+                        </li>
+                    @endif
+
                     @if (Route::has('admin.users.index') && auth()->user()->isAdmin())
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
@@ -240,6 +254,21 @@
                             </span>
                             <span class="nav-link-text">Account</span>
                         </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="nav-link w-100 text-start bg-transparent">
+                                <span class="nav-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-box-arrow-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8A1.5 1.5 0 0 1 0 11.5v-7A1.5 1.5 0 0 1 1.5 3h8a.5.5 0 0 1 0 1h-8A.5.5 0 0 0 1 4.5v7a.5.5 0 0 0 .5.5h8a.5.5 0 0 1 .5.5z"/>
+                                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-link-text">Log Out</span>
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </nav>

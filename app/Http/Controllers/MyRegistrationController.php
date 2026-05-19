@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRegistrationRequest;
 use App\Models\Activity;
+use App\Models\Registration;
 use App\Services\RegistrationService;
 
 class MyRegistrationController extends Controller
@@ -12,14 +13,18 @@ class MyRegistrationController extends Controller
 
     public function index()
     {
-        $registrations = auth()->user()
+        $registrationsForStatus = fn (string $status, string $pageName) => auth()->user()
             ->registrations()
             ->with('activity')
-            ->latest('date') // ou created_at selon ton nom de colonne
-            ->paginate(12);
+            ->where('status', $status)
+            ->latest('date')
+            ->paginate(8, ['*'], $pageName);
 
         return view('my-registrations.index', [
-            'registrations' => $registrations,
+            'invitedRegistrations' => $registrationsForStatus(Registration::INVITED, 'invited_page'),
+            'requestedRegistrations' => $registrationsForStatus(Registration::REQUESTED, 'requested_page'),
+            'acceptedRegistrations' => $registrationsForStatus(Registration::ACCEPTED, 'accepted_page'),
+            'rejectedRegistrations' => $registrationsForStatus(Registration::REJECTED, 'rejected_page'),
         ]);
     }
 
@@ -32,5 +37,23 @@ class MyRegistrationController extends Controller
         return redirect()
             ->route('my-registrations.index')
             ->with('status', 'Registration request sent.');
+    }
+
+    public function acceptInvitation(Registration $registration)
+    {
+        $this->registrationService->acceptInvite($registration, request()->user());
+
+        return redirect()
+            ->route('my-registrations.index')
+            ->with('status', 'Invitation accepted.');
+    }
+
+    public function rejectInvitation(Registration $registration)
+    {
+        $this->registrationService->rejectInvite($registration, request()->user());
+
+        return redirect()
+            ->route('my-registrations.index')
+            ->with('status', 'Invitation declined.');
     }
 }

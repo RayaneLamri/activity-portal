@@ -7,6 +7,7 @@ use App\Models\Registration;
 use App\Models\User;
 use App\Notifications\RegistrationAcceptedNotification;
 use App\Notifications\RegistrationRejectedNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class RegistrationService
@@ -23,14 +24,20 @@ class RegistrationService
             ]);
         }
 
-        return Registration::create([
-            'user_id' => $user->id,
-            'activity_id' => $activity->id,
-            'status' => Registration::REQUESTED,
-        ]);
+        return DB::transaction(function () use ($user, $activity) {
+            $registration = Registration::create([
+                'user_id' => $user->id,
+                'activity_id' => $activity->id,
+                'status' => Registration::REQUESTED,
+            ]);
+
+            $this->recordTransition($registration, $user, null, Registration::REQUESTED);
+
+            return $registration;
+        });
     }
 
-    public function createInvite(User $user, Activity $activity)
+    public function createInvite(User $user, Activity $activity, ?User $actor = null)
     {
         if (! $user->is_visible) {
             throw ValidationException::withMessages([
@@ -49,19 +56,17 @@ class RegistrationService
             ]);
         }
 
-        $registration = Registration::create([
-            'user_id' => $user->id,
-            'activity_id' => $activity->id,
-            'status' => Registration::INVITED,
-        ]);
+        return DB::transaction(function () use ($user, $activity, $actor) {
+            $registration = Registration::create([
+                'user_id' => $user->id,
+                'activity_id' => $activity->id,
+                'status' => Registration::INVITED,
+            ]);
 
-        $registration->events()->create([
-            'user_id' => $user->id,
-            'action' => Registration::INVITED,
-            'date' => now(),
-        ]);
+            $this->recordTransition($registration, $actor ?? $user, null, Registration::INVITED);
 
-        return $registration;
+            return $registration;
+        });
     }
 
     public function accept(Registration $registration, User $user)
@@ -84,19 +89,49 @@ class RegistrationService
             ]);
         }
 
-        $registration->update([
-            'status' => Registration::ACCEPTED,
-        ]);
-
-        $registration->events()->create([
-            'user_id' => $user->id,
-            'action' => Registration::ACCEPTED,
-            'date' => now(),
-        ]);
+        $this->transitionTo($registration, $user, Registration::ACCEPTED);
 
         $registration->user->notify(
             new RegistrationAcceptedNotification($registration)
         );
+
+        return $registration;
+    }
+
+    public function acceptInvite(Registration $registration, User $user)
+    {
+        if (! $registration->isInvited() || $registration->user_id !== $user->id) {
+            throw ValidationException::withMessages([
+                'registration' => 'Only your pending invitations can be accepted.',
+            ]);
+        }
+
+        if (! $user->is_visible) {
+            throw ValidationException::withMessages([
+                'registration' => 'Hidden users cannot accept invitations.',
+            ]);
+        }
+
+        if ($registration->activity->remainingCapacity() <= 0) {
+            throw ValidationException::withMessages([
+                'registration' => 'This activity is full.',
+            ]);
+        }
+
+        $this->transitionTo($registration, $user, Registration::ACCEPTED);
+
+        return $registration;
+    }
+
+    public function rejectInvite(Registration $registration, User $user)
+    {
+        if (! $registration->isInvited() || $registration->user_id !== $user->id) {
+            throw ValidationException::withMessages([
+                'registration' => 'Only your pending invitations can be rejected.',
+            ]);
+        }
+
+        $this->transitionTo($registration, $user, Registration::REJECTED);
 
         return $registration;
     }
@@ -109,20 +144,38 @@ class RegistrationService
             ]);
         }
 
-        $registration->update([
-            'status' => Registration::REJECTED,
-        ]);
-
-        $registration->events()->create([
-            'user_id' => $user->id,
-            'action' => Registration::REJECTED,
-            'date' => now(),
-        ]);
+        $this->transitionTo($registration, $user, Registration::REJECTED);
 
         $registration->user->notify(
             new RegistrationRejectedNotification($registration)
         );
 
         return $registration;
+    }
+
+    private function transitionTo(Registration $registration, User $actor, string $toStatus): Registration
+    {
+        return DB::transaction(function () use ($registration, $actor, $toStatus) {
+            $fromStatus = $registration->status;
+
+            $registration->update([
+                'status' => $toStatus,
+            ]);
+
+            $this->recordTransition($registration, $actor, $fromStatus, $toStatus);
+
+            return $registration;
+        });
+    }
+
+    private function recordTransition(Registration $registration, User $actor, ?string $fromStatus, string $toStatus): void
+    {
+        $registration->events()->create([
+            'user_id' => $actor->id,
+            'action' => $toStatus,
+            'from_status' => $fromStatus,
+            'to_status' => $toStatus,
+            'date' => now(),
+        ]);
     }
 }

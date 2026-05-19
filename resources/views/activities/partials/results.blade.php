@@ -2,7 +2,6 @@
     <div class="col-12">
         <div class="row g-4">
             @forelse ($activities as $activity)
-                @php($existingRegistration = $activity->registrations->first())
                 <div class="col-12">
                     <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
                         <div class="app-card-header p-3 border-bottom-0 w-100">
@@ -43,15 +42,11 @@
                         <div class="app-card-footer p-4 mt-auto w-100 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                             <a href="{{ route('activities.show', $activity) }}" class="btn app-btn-secondary">View Details</a>
 
-                            @if ($existingRegistration)
-                                <span class="badge bg-info">Registration already submitted: {{ $existingRegistration->status }}</span>
-                            @else
-                                <form method="POST" action="{{ route('my-registrations.store') }}">
-                                    @csrf
-                                    <input type="hidden" name="activity_id" value="{{ $activity->id }}">
-                                    <x-primary-button>Request Registration</x-primary-button>
-                                </form>
-                            @endif
+                            <form method="POST" action="{{ route('my-registrations.store') }}">
+                                @csrf
+                                <input type="hidden" name="activity_id" value="{{ $activity->id }}">
+                                <x-primary-button>Request Registration</x-primary-button>
+                            </form>
                         </div>
                     </div>
                 </div>

@@ -10,6 +10,20 @@
 
 @if ($existingRegistration)
     <p>Your registration status: {{ $existingRegistration->status }}</p>
+
+    @if ($existingRegistration->status === \App\Models\Registration::INVITED)
+        <div class="d-flex flex-wrap gap-2">
+            <form method="POST" action="{{ route('my-registrations.accept-invitation', $existingRegistration) }}">
+                @csrf
+                <button type="submit" class="btn app-btn-primary">Accept invitation</button>
+            </form>
+
+            <form method="POST" action="{{ route('my-registrations.reject-invitation', $existingRegistration) }}">
+                @csrf
+                <button type="submit" class="btn app-btn-secondary">Decline invitation</button>
+            </form>
+        </div>
+    @endif
 @else
     <form method="POST" action="{{ route('my-registrations.store') }}">
         @csrf

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\Admin\RegistrationEventController;
 use App\Http\Controllers\Admin\RegistrationController as AdminRegistrationController;
 use App\Http\Controllers\Admin\RegistrationDecisionController;
 use App\Http\Controllers\Admin\UpcomingActivityExportController;
@@ -30,6 +31,8 @@ Route::middleware(['auth', 'is_user'])->group(function () {
 
     Route::get('/my/registrations', [MyRegistrationController::class, 'index'])->name('my-registrations.index');
     Route::post('/my/registrations', [MyRegistrationController::class, 'store'])->name('my-registrations.store');
+    Route::post('/my/registrations/{registration}/accept-invitation', [MyRegistrationController::class, 'acceptInvitation'])->name('my-registrations.accept-invitation');
+    Route::post('/my/registrations/{registration}/reject-invitation', [MyRegistrationController::class, 'rejectInvitation'])->name('my-registrations.reject-invitation');
 
     Route::get('/my/preferences', [UserPreferenceController::class, 'edit'])->name('preferences.edit');
     Route::put('/my/preferences', [UserPreferenceController::class, 'update'])->name('preferences.update');
@@ -37,6 +40,7 @@ Route::middleware(['auth', 'is_user'])->group(function () {
 
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations.index');
+    Route::get('/registration-events', [RegistrationEventController::class, 'index'])->name('registration-events.index');
     Route::get('/activities/{activity}/registrations/{status}', [AdminRegistrationController::class, 'activityRegistrations'])->name('activities.registrations');
     Route::get('/registrations/{registration}', [AdminRegistrationController::class, 'show'])->name('registrations.show');
 

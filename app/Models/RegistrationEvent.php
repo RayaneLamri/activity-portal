@@ -15,9 +15,9 @@ class RegistrationEvent extends Model
 
     public $guarded = [];
 
-    public function events()
+    public function registration()
     {
-        return $this->hasMany(RegistrationEvent::class)->orderByDesc('date');
+        return $this->belongsTo(Registration::class);
     }
 
     public function user()
