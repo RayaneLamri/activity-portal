@@ -17,7 +17,6 @@ class RegistrationEventController extends Controller
                 ->groupBy('registration_id')
             )
             ->with([
-                'user',
                 'registration.user',
                 'registration.activity',
             ])
@@ -27,11 +26,6 @@ class RegistrationEventController extends Controller
                 $query->where(function ($query) use ($search) {
                     $query
                         ->where('action', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($query) use ($search) {
-                            $query
-                                ->where('name', 'like', "%{$search}%")
-                                ->orWhere('email', 'like', "%{$search}%");
-                        })
                         ->orWhereHas('registration.user', function ($query) use ($search) {
                             $query
                                 ->where('name', 'like', "%{$search}%")

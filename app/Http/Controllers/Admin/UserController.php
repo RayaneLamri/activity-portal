@@ -54,7 +54,6 @@ class UserController extends Controller
                 'registrations as accepted_registrations_count' => fn ($query) => $query
                     ->where('status', Registration::ACCEPTED),
             ])
-            ->where('is_active', true)
             ->whereDate('starts_on', '>=', $today)
             ->whereDoesntHave('registrations', fn ($query) => $query->where('user_id', $user->id))
             ->when($filters['search'], function ($query, string $search): void {
@@ -65,23 +64,26 @@ class UserController extends Controller
                         ->orWhere('location_name', 'like', "%{$search}%");
                 });
             })
-            ->when($filters['city'], fn ($query, $city) => $query->where('city', $city))
-            ->when($filters['min_age'] !== null, function ($query) use ($filters): void {
-                $query->where(function ($query) use ($filters): void {
-                    $query
-                        ->whereNull('max_age')
-                        ->orWhere('max_age', '>=', $filters['min_age']);
-                });
+            ->when($filters['match_preferences'] && $preference, function ($query) use ($preference): void {
+                $preferredCities = $preference->cityList();
+                $preferredPeriodNames = $preference->periodNameList();
+                $preferredAgeGroups = $preference->ageGroupList();
+
+                if ($preferredCities !== []) {
+                    $query->whereIn('city', $preferredCities);
+                }
+
+                if ($preferredPeriodNames !== []) {
+                    $query->whereIn('period_name', $preferredPeriodNames);
+                }
+
+                if ($preferredAgeGroups !== []) {
+                    $query->whereIn('age_group', $preferredAgeGroups);
+                }
             })
-            ->when($filters['max_age'] !== null, function ($query) use ($filters): void {
-                $query->where(function ($query) use ($filters): void {
-                    $query
-                        ->whereNull('min_age')
-                        ->orWhere('min_age', '<=', $filters['max_age']);
-                });
-            })
-            ->when($filters['starts_on'], fn ($query, $date) => $query->whereDate('starts_on', '>=', $date))
-            ->when($filters['ends_on'], fn ($query, $date) => $query->whereDate('ends_on', '<=', $date))
+            ->when($filters['cities'] !== [], fn ($query) => $query->whereIn('city', $filters['cities']))
+            ->when($filters['period_names'] !== [], fn ($query) => $query->whereIn('period_name', $filters['period_names']))
+            ->when($filters['age_groups'] !== [], fn ($query) => $query->whereIn('age_group', $filters['age_groups']))
             ->orderBy('starts_on')
             ->orderBy('title')
             ->limit(20)
@@ -92,6 +94,7 @@ class UserController extends Controller
             'preference' => $preference,
             'activities' => $activities,
             'filters' => $filters,
+            'ageGroups' => Activity::ageGroups(),
         ];
 
         if ($request->boolean('results_only')) {
@@ -104,12 +107,18 @@ class UserController extends Controller
             'html' => view('admin.users.partials.invite-activities-modal', [
                 ...$viewData,
                 'cities' => Activity::query()
-                    ->where('is_active', true)
                     ->whereDate('starts_on', '>=', $today)
                     ->whereNotNull('city')
                     ->distinct()
                     ->orderBy('city')
                     ->pluck('city'),
+                'periods' => Activity::query()
+                    ->whereDate('starts_on', '>=', $today)
+                    ->orderBy('starts_on')
+                    ->pluck('period_name')
+                    ->filter()
+                    ->unique()
+                    ->values(),
             ])->render(),
         ]);
     }
@@ -119,30 +128,30 @@ class UserController extends Controller
         if (! $request->boolean('filtered')) {
             return [
                 'search' => null,
-                'city' => $preference?->city,
-                'min_age' => $preference?->min_age,
-                'max_age' => $preference?->max_age,
-                'starts_on' => $preference?->starts_on?->format('Y-m-d'),
-                'ends_on' => $preference?->ends_on?->format('Y-m-d'),
+                'cities' => $preference?->cityList() ?? [],
+                'period_names' => $preference?->periodNameList() ?? [],
+                'age_groups' => $preference?->ageGroupList() ?? [],
+                'match_preferences' => true,
             ];
         }
 
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'min_age' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'max_age' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'starts_on' => ['nullable', 'date'],
-            'ends_on' => ['nullable', 'date'],
+            'cities' => ['nullable', 'array'],
+            'cities.*' => ['string', 'max:255'],
+            'period_names' => ['nullable', 'array'],
+            'period_names.*' => ['string', 'max:255'],
+            'age_groups' => ['nullable', 'array'],
+            'age_groups.*' => ['string', 'in:'.implode(',', Activity::ageGroupKeys())],
+            'match_preferences' => ['nullable', 'boolean'],
         ]);
 
         return [
             'search' => $validated['search'] ?? null,
-            'city' => $validated['city'] ?? null,
-            'min_age' => $validated['min_age'] ?? null,
-            'max_age' => $validated['max_age'] ?? null,
-            'starts_on' => $validated['starts_on'] ?? null,
-            'ends_on' => $validated['ends_on'] ?? null,
+            'cities' => array_values(array_filter($validated['cities'] ?? [])),
+            'period_names' => array_values(array_filter($validated['period_names'] ?? [])),
+            'age_groups' => array_values(array_filter($validated['age_groups'] ?? [])),
+            'match_preferences' => $request->boolean('match_preferences'),
         ];
     }
 }

@@ -16,37 +16,44 @@
     <div class="app-card app-card-settings shadow-sm p-4 mb-4">
         <div class="app-card-body">
             <form method="GET" action="{{ route('admin.registrations.index') }}" class="row g-3 align-items-end" data-live-filter-form>
-                <div class="col-12 col-lg-4">
+                @php
+                    $selectedCities = $filters['cities'] ?? [];
+                    $selectedPeriodNames = $filters['period_names'] ?? [];
+                    $selectedAgeGroups = $filters['age_groups'] ?? [];
+                @endphp
+
+                <div class="col-12 col-lg-3">
                     <input id="search" type="search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="Search camp, reference, location">
                 </div>
 
                 <div class="col-12 col-md-3 col-lg-2">
-                    <select id="city" name="city" class="form-select">
-                        <option value="">All cities</option>
+                    <select id="cities" name="cities[]" class="form-select" multiple data-select-enhanced data-placeholder="Cities">
                         @foreach ($cities as $city)
-                            <option value="{{ $city }}" @selected(($filters['city'] ?? null) === $city)>{{ $city }}</option>
+                            <option value="{{ $city }}" @selected(in_array($city, $selectedCities, true))>{{ $city }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="col-6 col-md-3 col-lg-2">
-                    <input id="from" type="date" name="from" class="form-control" value="{{ $filters['from'] ?? '' }}" aria-label="From date">
-                </div>
-
-                <div class="col-6 col-md-3 col-lg-2">
-                    <input id="until" type="date" name="until" class="form-control" value="{{ $filters['until'] ?? '' }}" aria-label="Until date">
+                <div class="col-12 col-md-3 col-lg-2">
+                    <select id="age_groups" name="age_groups[]" class="form-select" multiple data-select-enhanced data-placeholder="Age groups">
+                        @foreach ($ageGroups as $key => $group)
+                            <option value="{{ $key }}" @selected(in_array($key, $selectedAgeGroups, true))>
+                                {{ $group['label'] }} ({{ $group['min'] }}-{{ $group['max'] }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-12 col-md-3 col-lg-2">
-                    <select id="activity_status" name="activity_status" class="form-select">
-                        <option value="">All statuses</option>
-                        <option value="active" @selected(($filters['activity_status'] ?? null) === 'active')>Active</option>
-                        <option value="inactive" @selected(($filters['activity_status'] ?? null) === 'inactive')>Inactive</option>
+                    <select id="period_names" name="period_names[]" class="form-select" multiple data-select-enhanced data-placeholder="Periods">
+                        @foreach ($periods as $period)
+                            <option value="{{ $period }}" @selected(in_array($period, $selectedPeriodNames, true))>{{ $period }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="col-auto">
-                    <button type="button" class="btn app-btn-secondary" data-live-filter-reset>Reset</button>
+                    <button type="button" class="btn app-btn-secondary" data-live-filter-reset>Clear</button>
                 </div>
             </form>
         </div>

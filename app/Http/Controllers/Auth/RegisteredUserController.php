@@ -26,6 +26,14 @@ class RegisteredUserController extends Controller
                 ->distinct()
                 ->orderBy('city')
                 ->pluck('city'),
+            'periods' => Activity::query()
+                ->whereDate('starts_on', '>=', now()->toDateString())
+                ->orderBy('starts_on')
+                ->pluck('period_name')
+                ->filter()
+                ->unique()
+                ->values(),
+            'ageGroups' => Activity::ageGroups(),
         ]);
     }
 
@@ -40,11 +48,12 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'city' => ['nullable', 'string', 'max:255'],
-            'min_age' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'max_age' => ['nullable', 'integer', 'min:0', 'max:99', 'gte:min_age'],
-            'starts_on' => ['nullable', 'date'],
-            'ends_on' => ['nullable', 'date', 'after_or_equal:starts_on'],
+            'cities' => ['nullable', 'array'],
+            'cities.*' => ['string', 'max:255'],
+            'age_groups' => ['nullable', 'array'],
+            'age_groups.*' => ['string', 'in:'.implode(',', Activity::ageGroupKeys())],
+            'period_names' => ['nullable', 'array'],
+            'period_names.*' => ['string', 'max:255'],
         ]);
 
         $user = User::create([
@@ -53,15 +62,13 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $preferences = array_intersect_key($validated, array_flip([
-            'city',
-            'min_age',
-            'max_age',
-            'starts_on',
-            'ends_on',
-        ]));
+        $preferences = [
+            'cities' => array_values(array_filter($validated['cities'] ?? [])),
+            'age_groups' => array_values(array_filter($validated['age_groups'] ?? [])),
+            'period_names' => array_values(array_filter($validated['period_names'] ?? [])),
+        ];
 
-        if (array_filter($preferences, fn ($value) => filled($value)) !== []) {
+        if (array_filter($preferences) !== []) {
             $user->preference()->create($preferences);
         }
 
@@ -69,6 +76,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route($this->homeRouteName($user), absolute: false));
     }
 }

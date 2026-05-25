@@ -1,12 +1,14 @@
+@use "sass:color";
+
 /*************************** Theme Colours****************************/
 // Define theme colour scheme
-$theme-color-primary: #15a362;
+$theme-color-primary: #4f46e5;
 
 $theme-text-color-primary: #252930;
-$theme-text-color-secondary: lighten($theme-text-color-primary, 25%);
-$theme-text-color-light: lighten($theme-text-color-primary, 40%);
+$theme-text-color-secondary: color.adjust($theme-text-color-primary, $lightness: 25%);
+$theme-text-color-light: color.adjust($theme-text-color-primary, $lightness: 40%);
 $theme-bg-light: #f5f6fe;
-$theme-border-color: lighten($theme-text-color-primary, 75%);
+$theme-border-color: color.adjust($theme-text-color-primary, $lightness: 75%);
 $theme-color-new: #5ab66e;
 $theme-color-count: #EC776C;
 $theme-error: #EC575B;
@@ -45,4 +47,3 @@ $theme-colors: (
 
 /*************************** Theme Styles Section ****************************/
 @import "app/styles.scss";
-

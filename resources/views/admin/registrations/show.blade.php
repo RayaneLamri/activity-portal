@@ -5,7 +5,7 @@
                 <h1 class="app-page-title mb-0">Registration History</h1>
             </div>
             <div class="col-auto">
-                <a href="{{ route('admin.registrations.index') }}" class="btn app-btn-secondary">Back to overview</a>
+                <a href="{{ route('admin.registration-events.index') }}" class="btn app-btn-secondary">Back to overview</a>
             </div>
         </div>
     </x-slot>
@@ -37,7 +37,7 @@
                     </div>
                     <div class="item py-3">
                         <div class="item-label"><strong>Created</strong></div>
-                        <div class="item-data">{{ \Illuminate\Support\Carbon::parse($registration->created_at)->format('d M Y H:i') }}</div>
+                        <div class="item-data">{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d M Y H:i') }}</div>
                     </div>
                 </div>
             </div>
@@ -54,9 +54,8 @@
                                     <div class="fw-semibold text-uppercase small">
                                         {{ ucfirst($event->to_status ?? $event->action) }}
                                     </div>
-                                    <div class="text-muted small">{{ $event->user?->name ?? 'System' }}</div>
                                 </div>
-                                <div class="text-muted small">{{ \Illuminate\Support\Carbon::parse($event->created_at)->format('d M Y H:i') }}</div>
+                                <div class="text-muted small">{{ \Illuminate\Support\Carbon::parse($event->date)->format('d M Y H:i') }}</div>
                             </div>
                         </div>
                     @empty

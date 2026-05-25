@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Activity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUserPreferenceRequest extends FormRequest
 {
@@ -23,11 +25,12 @@ class UpdateUserPreferenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'city' => ['nullable', 'string', 'max:255'],
-            'min_age' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'max_age' => ['nullable', 'integer', 'min:0', 'max:99', 'gte:min_age'],
-            'starts_on' => ['nullable', 'date'],
-            'ends_on' => ['nullable', 'date', 'after_or_equal:starts_on'],
+            'cities' => ['nullable', 'array'],
+            'cities.*' => ['string', 'max:255'],
+            'age_groups' => ['nullable', 'array'],
+            'age_groups.*' => ['string', Rule::in(Activity::ageGroupKeys())],
+            'period_names' => ['nullable', 'array'],
+            'period_names.*' => ['string', 'max:255'],
         ];
     }
 }

@@ -14,10 +14,8 @@
                     <thead>
                         <tr>
                             <th class="cell">User</th>
-                            <th class="cell">Visibility</th>
-                            <th class="cell">Preference</th>
-                            <th class="cell">Registrations</th>
-                            <th class="cell">Action</th>
+                            <th class="cell text-center">Visible</th>
+                            <th class="cell"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,13 +25,22 @@
                                     <span class="d-block fw-semibold">{{ $user->name }}</span>
                                     <span class="note">{{ $user->email }}</span>
                                 </td>
-                                <td class="cell">
-                                    <span class="badge {{ $user->is_visible ? 'bg-success' : 'bg-secondary' }}">
-                                        {{ $user->is_visible ? 'Visible' : 'Hidden' }}
-                                    </span>
+                                <td class="cell text-center">
+                                    <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}" class="d-inline-flex justify-content-center">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="form-check form-switch m-0">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                                aria-label="Toggle visibility for {{ $user->name }}"
+                                                @checked($user->is_visible)
+                                                onchange="this.form.submit()"
+                                            >
+                                        </div>
+                                    </form>
                                 </td>
-                                <td class="cell">{{ $user->preference?->city ?: 'No saved preference' }}</td>
-                                <td class="cell">{{ $user->registrations_count }}</td>
                                 <td class="cell">
                                     <div class="d-flex flex-wrap gap-2">
                                         <button
@@ -44,14 +51,6 @@
                                         >
                                             Invite
                                         </button>
-
-                                        <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                            <button type="submit" class="btn-sm app-btn-secondary">
-                                                {{ $user->is_visible ? 'Hide' : 'Show' }}
-                                            </button>
-                                        </form>
                                     </div>
                                 </td>
                             </tr>

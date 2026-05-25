@@ -1,72 +1,79 @@
 <x-guest-layout body-class="app app-signup p-0">
-    <h2 class="auth-heading text-center mb-4">Create an account</h2>
+    <h2 class="auth-heading text-center mb-2">Create an account</h2>
+    <p class="text-muted text-center mb-4">Set your access and preferences to start matching activities.</p>
 
-    <div class="auth-form-container text-start">
+    <div class="auth-form-container auth-form-container-wide text-start">
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
-            <div class="mb-3">
-                <x-input-label for="name" :value="__('Name')" />
-                <x-text-input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-                <x-input-error :messages="$errors->get('name')" />
-            </div>
+            <div class="row g-3">
+                <div class="col-12 col-lg-6">
+                    <x-input-label for="name" :value="__('Name')" />
+                    <x-text-input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+                    <x-input-error :messages="$errors->get('name')" />
+                </div>
 
-            <div class="mb-3">
-                <x-input-label for="email" :value="__('Email')" />
-                <x-text-input id="email" type="email" name="email" :value="old('email')" required autocomplete="username" />
-                <x-input-error :messages="$errors->get('email')" />
-            </div>
+                <div class="col-12 col-lg-6">
+                    <x-input-label for="email" :value="__('Email')" />
+                    <x-text-input id="email" type="email" name="email" :value="old('email')" required autocomplete="username" />
+                    <x-input-error :messages="$errors->get('email')" />
+                </div>
 
-            <div class="mb-3">
-                <x-input-label for="password" :value="__('Password')" />
-                <x-text-input id="password" type="password" name="password" required autocomplete="new-password" />
-                <x-input-error :messages="$errors->get('password')" />
-            </div>
+                <div class="col-12 col-lg-6">
+                    <x-input-label for="password" :value="__('Password')" />
+                    <x-text-input id="password" type="password" name="password" required autocomplete="new-password" />
+                    <x-input-error :messages="$errors->get('password')" />
+                </div>
 
-            <div class="mb-3">
-                <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                <x-text-input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" />
-                <x-input-error :messages="$errors->get('password_confirmation')" />
+                <div class="col-12 col-lg-6">
+                    <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                    <x-text-input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" />
+                    <x-input-error :messages="$errors->get('password_confirmation')" />
+                </div>
             </div>
 
             <div class="border-top pt-3 mt-4">
-                <h3 class="h6 mb-3">Preferences</h3>
+                <h3 class="h6 mb-1">Preferences</h3>
+                <p class="text-muted small mb-3">These criteria can be changed later from your account.</p>
+
+                @php
+                    $selectedCities = old('cities', []);
+                    $selectedAgeGroups = old('age_groups', []);
+                    $selectedPeriodNames = old('period_names', []);
+                @endphp
 
                 <div class="mb-3">
-                    <x-input-label for="city" value="Preferred city" />
-                    <select id="city" name="city" class="form-select">
-                        <option value="">No preference</option>
+                    <x-input-label for="cities" value="Preferred cities" />
+                    <select id="cities" name="cities[]" class="form-select" multiple data-select-enhanced data-placeholder="Preferred cities">
                         @foreach ($cities as $city)
-                            <option value="{{ $city }}" @selected(old('city') === $city)>{{ $city }}</option>
+                            <option value="{{ $city }}" @selected(in_array($city, $selectedCities, true))>{{ $city }}</option>
                         @endforeach
                     </select>
-                    <x-input-error :messages="$errors->get('city')" />
+                    <x-input-error :messages="$errors->get('cities')" />
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <x-input-label for="min_age" value="Preferred minimum age" />
-                        <x-text-input id="min_age" name="min_age" type="number" :value="old('min_age')" />
-                        <x-input-error :messages="$errors->get('min_age')" />
-                    </div>
-                    <div class="col-md-6">
-                        <x-input-label for="max_age" value="Preferred maximum age" />
-                        <x-text-input id="max_age" name="max_age" type="number" :value="old('max_age')" />
-                        <x-input-error :messages="$errors->get('max_age')" />
-                    </div>
+                <div class="mb-3">
+                    <x-input-label for="age_groups" value="Preferred age groups" />
+                    <select id="age_groups" name="age_groups[]" class="form-select" multiple data-select-enhanced data-placeholder="Preferred age groups">
+                        @foreach ($ageGroups as $key => $group)
+                            <option value="{{ $key }}" @selected(in_array($key, $selectedAgeGroups, true))>
+                                {{ $group['label'] }} ({{ $group['min'] }}-{{ $group['max'] }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('age_groups')" />
                 </div>
 
-                <div class="row g-3 mt-1">
-                    <div class="col-md-6">
-                        <x-input-label for="starts_on" value="Available from" />
-                        <x-text-input id="starts_on" name="starts_on" type="date" :value="old('starts_on')" />
-                        <x-input-error :messages="$errors->get('starts_on')" />
-                    </div>
-                    <div class="col-md-6">
-                        <x-input-label for="ends_on" value="Available until" />
-                        <x-text-input id="ends_on" name="ends_on" type="date" :value="old('ends_on')" />
-                        <x-input-error :messages="$errors->get('ends_on')" />
-                    </div>
+                <div class="mb-3">
+                    <x-input-label for="period_names" value="Preferred periods" />
+                    <select id="period_names" name="period_names[]" class="form-select" multiple data-select-enhanced data-placeholder="Preferred periods">
+                        @foreach ($periods as $period)
+                            <option value="{{ $period }}" @selected(in_array($period, $selectedPeriodNames, true))>
+                                {{ $period }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('period_names')" />
                 </div>
             </div>
 

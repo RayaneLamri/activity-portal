@@ -12,7 +12,7 @@ class UpcomingActivityExportController extends Controller
     {
         return Excel::download(
             new UpcomingActivitiesExport,
-            'upcoming-activities-'.now()->format('Y-m-d').'.xlsx'
+            'upcoming-activities-'.now()->format('d-m-Y').'.xlsx'
         );
     }
 }

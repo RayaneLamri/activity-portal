@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\MyRegistrationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserPreferenceController;
+use App\Support\HomeRoute;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,7 +17,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route(HomeRoute::nameFor(request()->user()));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -27,7 +28,6 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'is_user'])->group(function () {
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
-    Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
 
     Route::get('/my/registrations', [MyRegistrationController::class, 'index'])->name('my-registrations.index');
     Route::post('/my/registrations', [MyRegistrationController::class, 'store'])->name('my-registrations.store');

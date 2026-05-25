@@ -6,7 +6,9 @@ use App\Models\Activity;
 use App\Models\Registration;
 use App\Models\User;
 use App\Notifications\RegistrationAcceptedNotification;
+use App\Notifications\RegistrationInvitedNotification;
 use App\Notifications\RegistrationRejectedNotification;
+use App\Notifications\RegistrationRequestedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -24,24 +26,30 @@ class RegistrationService
             ]);
         }
 
-        return DB::transaction(function () use ($user, $activity) {
+        $this->ensureActivityHasNotStarted($activity);
+
+        $registration = DB::transaction(function () use ($user, $activity) {
             $registration = Registration::create([
                 'user_id' => $user->id,
                 'activity_id' => $activity->id,
                 'status' => Registration::REQUESTED,
             ]);
 
-            $this->recordTransition($registration, $user, null, Registration::REQUESTED);
+            $this->recordTransition($registration, null, Registration::REQUESTED);
 
             return $registration;
         });
+
+        $user->notify(new RegistrationRequestedNotification($registration));
+
+        return $registration;
     }
 
-    public function createInvite(User $user, Activity $activity, ?User $actor = null)
+    public function createInvite(User $user, Activity $activity)
     {
         if (! $user->is_visible) {
             throw ValidationException::withMessages([
-                'user_id' => 'Hidden users cannot be invited.',
+                'user_id' => 'Inactive users cannot be invited.',
             ]);
         }
 
@@ -56,20 +64,24 @@ class RegistrationService
             ]);
         }
 
-        return DB::transaction(function () use ($user, $activity, $actor) {
+        $registration = DB::transaction(function () use ($user, $activity) {
             $registration = Registration::create([
                 'user_id' => $user->id,
                 'activity_id' => $activity->id,
                 'status' => Registration::INVITED,
             ]);
 
-            $this->recordTransition($registration, $actor ?? $user, null, Registration::INVITED);
+            $this->recordTransition($registration, null, Registration::INVITED);
 
             return $registration;
         });
+
+        $user->notify(new RegistrationInvitedNotification($registration));
+
+        return $registration;
     }
 
-    public function accept(Registration $registration, User $user)
+    public function accept(Registration $registration)
     {
         if (! $registration->isRequested() && ! $registration->isInvited()) {
             throw ValidationException::withMessages([
@@ -79,17 +91,19 @@ class RegistrationService
 
         if (! $registration->user->is_visible) {
             throw ValidationException::withMessages([
-                'registration' => 'Hidden users cannot be accepted.',
+                'registration' => 'Inactive users cannot be accepted.',
             ]);
         }
 
-        if ($registration->activity->remainingCapacity() <= 0) {
+        if ($registration->activity->isFull()) {
             throw ValidationException::withMessages([
                 'registration' => 'This activity is full.',
             ]);
         }
 
-        $this->transitionTo($registration, $user, Registration::ACCEPTED);
+        $this->ensureActivityHasNotStarted($registration->activity);
+
+        $this->transitionTo($registration, Registration::ACCEPTED);
 
         $registration->user->notify(
             new RegistrationAcceptedNotification($registration)
@@ -108,17 +122,19 @@ class RegistrationService
 
         if (! $user->is_visible) {
             throw ValidationException::withMessages([
-                'registration' => 'Hidden users cannot accept invitations.',
+                'registration' => 'Inactive users cannot accept invitations.',
             ]);
         }
 
-        if ($registration->activity->remainingCapacity() <= 0) {
+        if ($registration->activity->isFull()) {
             throw ValidationException::withMessages([
                 'registration' => 'This activity is full.',
             ]);
         }
 
-        $this->transitionTo($registration, $user, Registration::ACCEPTED);
+        $this->ensureActivityHasNotStarted($registration->activity);
+
+        $this->transitionTo($registration, Registration::ACCEPTED);
 
         return $registration;
     }
@@ -131,12 +147,12 @@ class RegistrationService
             ]);
         }
 
-        $this->transitionTo($registration, $user, Registration::REJECTED);
+        $this->transitionTo($registration, Registration::REJECTED);
 
         return $registration;
     }
 
-    public function reject(Registration $registration, User $user)
+    public function reject(Registration $registration)
     {
         if (! $registration->isRequested() && ! $registration->isInvited()) {
             throw ValidationException::withMessages([
@@ -144,7 +160,7 @@ class RegistrationService
             ]);
         }
 
-        $this->transitionTo($registration, $user, Registration::REJECTED);
+        $this->transitionTo($registration, Registration::REJECTED);
 
         $registration->user->notify(
             new RegistrationRejectedNotification($registration)
@@ -153,29 +169,37 @@ class RegistrationService
         return $registration;
     }
 
-    private function transitionTo(Registration $registration, User $actor, string $toStatus): Registration
+    private function transitionTo(Registration $registration, string $toStatus): Registration
     {
-        return DB::transaction(function () use ($registration, $actor, $toStatus) {
+        return DB::transaction(function () use ($registration, $toStatus) {
             $fromStatus = $registration->status;
 
             $registration->update([
                 'status' => $toStatus,
             ]);
 
-            $this->recordTransition($registration, $actor, $fromStatus, $toStatus);
+            $this->recordTransition($registration, $fromStatus, $toStatus);
 
             return $registration;
         });
     }
 
-    private function recordTransition(Registration $registration, User $actor, ?string $fromStatus, string $toStatus): void
+    private function recordTransition(Registration $registration, ?string $fromStatus, string $toStatus): void
     {
         $registration->events()->create([
-            'user_id' => $actor->id,
             'action' => $toStatus,
             'from_status' => $fromStatus,
             'to_status' => $toStatus,
             'date' => now(),
         ]);
+    }
+
+    private function ensureActivityHasNotStarted(Activity $activity): void
+    {
+        if ($activity->starts_on?->lt(now()->startOfDay()) ?? true) {
+            throw ValidationException::withMessages([
+                'activity_id' => 'This activity has already started.',
+            ]);
+        }
     }
 }

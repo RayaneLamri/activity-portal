@@ -44,7 +44,8 @@ class RegistrationAcceptedNotification extends Notification
             ->greeting("Hello {$notifiable->name},")
             ->line("Your registration for {$activity->title} has been accepted.")
             ->line("Location: {$activity->location_name}")
-            ->line("Start date: {$activity->starts_on?->format('Y-m-d')}");
+            ->line("Period: {$activity->period_name}")
+            ->line("Dates: {$activity->starts_on?->format('Y-m-d')} - {$activity->ends_on?->format('Y-m-d')}");
     }
 
     /**

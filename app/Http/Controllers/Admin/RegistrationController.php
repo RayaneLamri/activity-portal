@@ -13,12 +13,15 @@ class RegistrationController extends Controller
 {
     public function index(AdminRegistrationIndexRequest $request)
     {
+        $filters = $request->validated();
+
         $activities = Activity::query()
             ->with([
                 'registrations' => fn ($query) => $query
                     ->with('user')
                     ->orderBy('date'),
             ])
+            ->whereDate('starts_on', '>=', now()->toDateString())
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->input('search');
 
@@ -29,25 +32,28 @@ class RegistrationController extends Controller
                         ->orWhere('location_name', 'like', "%{$search}%");
                 });
             })
-            ->when($request->filled('city'), function ($query) use ($request) {
-                $query->where('city', $request->input('city'));
-            })
-            ->when($request->filled('from'), function ($query) use ($request) {
-                $query->whereDate('starts_on', '>=', $request->date('from'));
-            })
-            ->when($request->filled('until'), function ($query) use ($request) {
-                $query->whereDate('starts_on', '<=', $request->date('until'));
-            })
+            ->when(($filters['cities'] ?? []) !== [], fn ($query) => $query->whereIn('city', $filters['cities']))
+            ->when(($filters['period_names'] ?? []) !== [], fn ($query) => $query->whereIn('period_name', $filters['period_names']))
+            ->when(($filters['age_groups'] ?? []) !== [], fn ($query) => $query->whereIn('age_group', $filters['age_groups']))
             ->orderBy('starts_on')
             ->orderBy('title')
             ->paginate(12)
             ->withQueryString();
 
         $cities = Activity::query()
+            ->whereDate('starts_on', '>=', now()->toDateString())
             ->whereNotNull('city')
             ->distinct()
             ->orderBy('city')
             ->pluck('city');
+
+        $periods = Activity::query()
+            ->whereDate('starts_on', '>=', now()->toDateString())
+            ->orderBy('starts_on')
+            ->pluck('period_name')
+            ->filter()
+            ->unique()
+            ->values();
 
         $users = User::query()
             ->where('role', 'user')
@@ -58,7 +64,9 @@ class RegistrationController extends Controller
         $data = [
             'activities' => $activities,
             'cities' => $cities,
-            'filters' => $request->validated(),
+            'periods' => $periods,
+            'ageGroups' => Activity::ageGroups(),
+            'filters' => $filters,
             'users' => $users,
         ];
 
@@ -80,10 +88,10 @@ class RegistrationController extends Controller
         ], true), 404);
 
         $activity->load([
-            'registrations' => fn ($query) => $query
-                ->where('status', $status)
-                ->with('user')
-                ->orderBy('created_at'),
+                'registrations' => fn ($query) => $query
+                    ->where('status', $status)
+                    ->with('user')
+                    ->orderBy('date'),
         ]);
 
         return new JsonResponse([
@@ -100,7 +108,7 @@ class RegistrationController extends Controller
         $registration->load([
             'user',
             'activity',
-            'events.user',
+            'events',
         ]);
 
         return view('admin.registrations.show', [

@@ -17,36 +17,41 @@
                         @csrf
                         @method('PUT')
 
+                        @php
+                            $selectedCities = old('cities', $preference?->cityList() ?? []);
+                            $selectedAgeGroups = old('age_groups', $preference?->ageGroupList() ?? []);
+                            $selectedPeriodNames = old('period_names', $preference?->periodNameList() ?? []);
+                        @endphp
+
                         <div class="mb-3">
-                            <x-input-label for="city" value="Preferred city" />
-                            <select id="city" name="city" class="form-select">
-                                <option value="">No preference</option>
+                            <x-input-label for="cities" value="Preferred cities" />
+                            <select id="cities" name="cities[]" class="form-select" multiple data-select-enhanced data-placeholder="Preferred cities">
                                 @foreach ($cities as $city)
-                                    <option value="{{ $city }}" @selected(old('city', $preference?->city) === $city)>{{ $city }}</option>
+                                    <option value="{{ $city }}" @selected(in_array($city, $selectedCities, true))>{{ $city }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <x-input-label for="min_age" value="Preferred minimum age" />
-                                <x-text-input id="min_age" name="min_age" type="number" :value="old('min_age', $preference?->min_age)" />
-                            </div>
-                            <div class="col-md-6">
-                                <x-input-label for="max_age" value="Preferred maximum age" />
-                                <x-text-input id="max_age" name="max_age" type="number" :value="old('max_age', $preference?->max_age)" />
-                            </div>
+                        <div class="mb-3">
+                            <x-input-label for="age_groups" value="Preferred age groups" />
+                            <select id="age_groups" name="age_groups[]" class="form-select" multiple data-select-enhanced data-placeholder="Preferred age groups">
+                                @foreach ($ageGroups as $key => $group)
+                                    <option value="{{ $key }}" @selected(in_array($key, $selectedAgeGroups, true))>
+                                        {{ $group['label'] }} ({{ $group['min'] }}-{{ $group['max'] }})
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
-                        <div class="row g-3 mt-1">
-                            <div class="col-md-6">
-                                <x-input-label for="starts_on" value="Available from" />
-                                <x-text-input id="starts_on" name="starts_on" type="date" :value="old('starts_on', optional($preference?->starts_on)->format('Y-m-d'))" />
-                            </div>
-                            <div class="col-md-6">
-                                <x-input-label for="ends_on" value="Available until" />
-                                <x-text-input id="ends_on" name="ends_on" type="date" :value="old('ends_on', optional($preference?->ends_on)->format('Y-m-d'))" />
-                            </div>
+                        <div class="mb-3">
+                            <x-input-label for="period_names" value="Preferred periods" />
+                            <select id="period_names" name="period_names[]" class="form-select" multiple data-select-enhanced data-placeholder="Preferred periods">
+                                @foreach ($periods as $period)
+                                    <option value="{{ $period }}" @selected(in_array($period, $selectedPeriodNames, true))>
+                                        {{ $period }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="mt-4">

@@ -3,6 +3,7 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">My Registrations</h1>
+                <div class="text-muted">Review active requests and invitations for upcoming activities.</div>
             </div>
         </div>
     </x-slot>
@@ -28,89 +29,113 @@
                 'show_actions' => false,
             ],
             [
-                'title' => 'Declined or rejected',
+                'title' => 'Declined',
                 'registrations' => $rejectedRegistrations,
-                'empty' => 'No declined or rejected registrations.',
+                'empty' => 'No declined registrations.',
                 'show_actions' => false,
             ],
         ];
+
+        $visibleSections = collect($sections)->filter(fn ($section) => $section['registrations']->total() > 0);
     @endphp
 
-    @foreach ($sections as $section)
-        <div class="app-card app-card-orders-table shadow-sm mb-4">
-            <div class="app-card-header p-3 border-bottom-0">
-                <h4 class="app-card-title mb-0">{{ $section['title'] }}</h4>
-            </div>
-            <div class="app-card-body">
-                <div class="table-responsive">
-                    <table class="table app-table-hover mb-0 text-left">
-                        <thead>
-                            <tr>
-                                <th class="cell">Activity</th>
-                                <th class="cell">Location</th>
-                                <th class="cell">Dates</th>
-                                <th class="cell">Status</th>
-                                <th class="cell">Date</th>
-                                @if ($section['show_actions'])
-                                    <th class="cell">Action</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($section['registrations'] as $registration)
-                                @php
-                                    $statusClass = $registration->status === \App\Models\Registration::ACCEPTED
-                                        ? 'bg-success'
-                                        : ($registration->status === \App\Models\Registration::REJECTED ? 'bg-danger' : 'bg-warning');
-                                @endphp
-                                <tr>
-                                    <td class="cell">
-                                        <a href="{{ route('activities.show', $registration->activity) }}" class="fw-semibold app-link">
-                                            {{ $registration->activity->title }}
-                                        </a>
-                                    </td>
-                                    <td class="cell">{{ $registration->activity->city ?: '-' }}</td>
-                                    <td class="cell">{{ $registration->activity->starts_on->format('d M Y') }}</td>
-                                    <td class="cell">
-                                        <span class="badge {{ $statusClass }}">
-                                            {{ ucfirst($registration->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="cell">
-                                        <span>{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d M Y') }}</span>
-                                        <span class="note">{{ \Illuminate\Support\Carbon::parse($registration->date)->format('H:i') }}</span>
-                                    </td>
-                                    @if ($section['show_actions'])
-                                        <td class="cell">
-                                            <div class="d-flex flex-wrap gap-2">
-                                                <form method="POST" action="{{ route('my-registrations.accept-invitation', $registration) }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn-sm app-btn-primary">Accept</button>
-                                                </form>
+    <div class="d-flex flex-column gap-4">
+        @forelse ($visibleSections as $section)
+            <section class="app-card app-card-orders-table shadow-sm">
+                <div class="app-card-header px-4 py-3">
+                    <h2 class="registration-section-title mb-0">{{ $section['title'] }}</h2>
+                </div>
 
-                                                <form method="POST" action="{{ route('my-registrations.reject-invitation', $registration) }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn-sm app-btn-secondary">Decline</button>
-                                                </form>
-                                            </div>
-                                        </td>
+                <div class="app-card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table app-table-hover mb-0 text-left">
+                            <thead>
+                                <tr>
+                                    <th class="cell">Activity</th>
+                                    <th class="cell">Location</th>
+                                    <th class="cell">Period</th>
+                                    <th class="cell">Dates</th>
+                                    <th class="cell">Age</th>
+                                    <th class="cell">Updated</th>
+                                    @if ($section['show_actions'])
+                                        <th class="cell text-center"></th>
                                     @endif
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="{{ $section['show_actions'] ? 6 : 5 }}" class="cell text-center py-4">{{ $section['empty'] }}</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                            </thead>
+                            <tbody>
+                                @foreach ($section['registrations'] as $registration)
+                                    @php
+                                        $activity = $registration->activity;
+                                        $location = $activity->location_name . ($activity->city ? ' - '.$activity->city : '');
+                                        $activityDates = $activity->starts_on?->format('d M Y') . ' - ' . $activity->ends_on?->format('d M Y');
+                                    @endphp
 
-        @if ($section['registrations']->hasPages())
-            <nav class="app-pagination mb-4">
-                {{ $section['registrations']->links('pagination::bootstrap-5') }}
-            </nav>
-        @endif
-    @endforeach
+                                    <tr>
+                                        <td class="cell fw-semibold">{{ $activity->title }}</td>
+                                        <td class="cell">
+                                            <span class="d-block">{{ $activity->location_name }}</span>
+                                            <span class="note">{{ $activity->city ?: 'No city' }}</span>
+                                        </td>
+                                        <td class="cell">{{ $activity->period_name ?? 'No period' }}</td>
+                                        <td class="cell">
+                                            <span>{{ $activity->starts_on?->format('d M Y') }}</span>
+                                            <span class="note">{{ $activity->ends_on?->format('d M Y') }}</span>
+                                        </td>
+                                        <td class="cell">{{ $activity->ageGroupLabel() }}</td>
+                                        <td class="cell">
+                                            <span>{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d M Y') }}</span>
+                                            <span class="note">{{ \Illuminate\Support\Carbon::parse($registration->date)->format('H:i') }}</span>
+                                        </td>
+                                        @if ($section['show_actions'])
+                                            <td class="cell">
+                                                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                                    <form
+                                                        method="POST"
+                                                        action="{{ route('my-registrations.accept-invitation', $registration) }}"
+                                                        data-invitation-response-form
+                                                        data-action-type="accept"
+                                                        data-activity-title="{{ $activity->title }}"
+                                                        data-activity-date="{{ $activityDates }}"
+                                                        data-activity-location="{{ $location }}"
+                                                    >
+                                                        @csrf
+                                                        <button type="submit" class="btn-sm app-btn-primary">Accept</button>
+                                                    </form>
+
+                                                    <form
+                                                        method="POST"
+                                                        action="{{ route('my-registrations.reject-invitation', $registration) }}"
+                                                        data-invitation-response-form
+                                                        data-action-type="decline"
+                                                        data-activity-title="{{ $activity->title }}"
+                                                        data-activity-date="{{ $activityDates }}"
+                                                        data-activity-location="{{ $location }}"
+                                                    >
+                                                        @csrf
+                                                        <button type="submit" class="btn-sm app-btn-secondary">Decline</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @if ($section['registrations']->hasPages())
+                    <div class="app-card-footer px-4 py-3">
+                        <nav class="app-pagination">
+                            {{ $section['registrations']->links('pagination::bootstrap-5') }}
+                        </nav>
+                    </div>
+                @endif
+            </section>
+        @empty
+            <div class="app-card shadow-sm">
+                <div class="app-card-body p-5 text-center text-muted">No active registrations.</div>
+            </div>
+        @endforelse
+    </div>
 </x-app-layout>

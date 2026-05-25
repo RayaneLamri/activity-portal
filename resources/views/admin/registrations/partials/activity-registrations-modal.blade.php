@@ -3,12 +3,12 @@
     'requested' => 'Registration Requests',
     'accepted' => 'Accepted Participants',
 ])
-@php($showActions = $status !== \App\Models\Registration::INVITED)
+@php($showActions = $status == \App\Models\Registration::REQUESTED)
 
 <div class="modal-header">
     <div>
         <h5 class="modal-title mb-1">{{ $titles[$status] ?? 'Registrations' }}</h5>
-        <div class="small text-muted">{{ $activity->title }} - {{ $activity->starts_on->format('d M Y') }}</div>
+        <div class="small text-muted">{{ $activity->title }} - {{ $activity->period_name ?? 'No period' }}</div>
     </div>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
@@ -20,9 +20,9 @@
                 <tr>
                     <th class="cell">User</th>
                     <th class="cell">Email</th>
-                    <th class="cell">Registered</th>
+                    <th class="cell">Date</th>
                     @if ($showActions)
-                        <th class="cell">Actions</th>
+                        <th class="cell text-center"></th>
                     @endif
                 </tr>
             </thead>
@@ -37,18 +37,16 @@
                         </td>
                         @if ($showActions)
                             <td class="cell">
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a href="{{ route('admin.registrations.show', $registration) }}" class="btn-sm app-btn-secondary">View</a>
-
+                                <div class="d-flex flex-wrap gap-2 justify-content-center">
                                     @if ($registration->status === \App\Models\Registration::REQUESTED)
                                         <form method="POST" action="{{ route('admin.registrations.accept', $registration) }}" data-live-registration-form data-action-type="accept">
                                             @csrf
                                             <button type="submit" class="btn-sm app-btn-primary">Accept</button>
                                         </form>
 
-                                        <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}" class="d-flex gap-2" data-live-registration-form data-action-type="reject">
+                                        <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}" data-live-registration-form data-action-type="reject">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                            <button type="submit" class="btn-sm app-btn-danger">Reject</button>
                                         </form>
                                     @endif
                                 </div>

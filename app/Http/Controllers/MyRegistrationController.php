@@ -13,12 +13,15 @@ class MyRegistrationController extends Controller
 
     public function index()
     {
-        $registrationsForStatus = fn (string $status, string $pageName) => auth()->user()
-            ->registrations()
-            ->with('activity')
-            ->where('status', $status)
-            ->latest('date')
-            ->paginate(8, ['*'], $pageName);
+        $registrationsForStatus = function (string $status, string $pageName) {
+            return auth()->user()
+                ->registrations()
+                ->with('activity')
+                ->where('status', $status)
+                ->whereHas('activity', fn ($query) => $query->whereDate('starts_on', '>=', now()->toDateString()))
+                ->latest('date')
+                ->paginate(8, ['*'], $pageName);
+        };
 
         return view('my-registrations.index', [
             'invitedRegistrations' => $registrationsForStatus(Registration::INVITED, 'invited_page'),
@@ -34,9 +37,7 @@ class MyRegistrationController extends Controller
 
         $this->registrationService->createRequest($request->user(), $activity);
 
-        return redirect()
-            ->route('my-registrations.index')
-            ->with('status', 'Registration request sent.');
+        return back()->with('status', 'Registration request sent.');
     }
 
     public function acceptInvitation(Registration $registration)

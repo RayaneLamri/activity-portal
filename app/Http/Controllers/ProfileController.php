@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Activity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,8 +17,24 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'preference' => $user->isUser() ? $user->preference : null,
+            'cities' => $user->isUser()
+                ? Activity::query()->distinct()->orderBy('city')->pluck('city')
+                : collect(),
+            'periods' => $user->isUser()
+                ? Activity::query()
+                    ->whereDate('starts_on', '>=', now()->toDateString())
+                    ->orderBy('starts_on')
+                    ->pluck('period_name')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                : collect(),
+            'ageGroups' => $user->isUser() ? Activity::ageGroups() : [],
         ]);
     }
 

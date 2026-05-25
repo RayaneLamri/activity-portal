@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Activity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,10 +26,12 @@ class AdminRegistrationIndexRequest extends FormRequest
     {
         return [
             'search' => ['nullable', 'string', 'max:120'],
-            'city' => ['nullable', 'string', 'max:120'],
-            'from' => ['nullable', 'date'],
-            'until' => ['nullable', 'date', 'after_or_equal:from'],
-            'activity_status' => ['nullable', Rule::in(['active', 'inactive'])],
+            'cities' => ['nullable', 'array'],
+            'cities.*' => ['string', 'max:120'],
+            'period_names' => ['nullable', 'array'],
+            'period_names.*' => ['string', 'max:255'],
+            'age_groups' => ['nullable', 'array'],
+            'age_groups.*' => ['string', Rule::in(Activity::ageGroupKeys())],
         ];
     }
 }

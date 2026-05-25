@@ -52,7 +52,6 @@
                             <th class="cell">Status</th>
                             <th class="cell">Registration</th>
                             <th class="cell">Activity</th>
-                            <th class="cell">Actor</th>
                             <th class="cell">Details</th>
                         </tr>
                     </thead>
@@ -78,10 +77,6 @@
                                     <span class="note">{{ $event->registration?->activity?->city ?: 'No city' }}</span>
                                 </td>
                                 <td class="cell">
-                                    <span class="d-block fw-semibold">{{ $event->user?->name ?? 'System' }}</span>
-                                    <span class="note">{{ $event->user?->email ?? '-' }}</span>
-                                </td>
-                                <td class="cell">
                                     @if ($event->registration)
                                         <a href="{{ route('admin.registrations.show', $event->registration) }}" class="btn-sm app-btn-secondary">View</a>
                                     @else
@@ -91,7 +86,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="cell text-center py-4">No current registration status found.</td>
+                                <td colspan="5" class="cell text-center py-4">No current registration status found.</td>
                             </tr>
                         @endforelse
                     </tbody>

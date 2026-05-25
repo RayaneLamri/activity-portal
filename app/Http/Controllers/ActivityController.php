@@ -13,41 +13,35 @@ class ActivityController extends Controller
         $user = $request->user();
         $filters = $request->validated();
         $preference = $user->preference;
+        $hasExplicitFilters = collect(['cities', 'age_groups', 'period_names', 'match_preferences'])
+            ->contains(fn (string $key) => $request->query->has($key));
+        $matchPreferences = $hasExplicitFilters
+            ? (bool) ($filters['match_preferences'] ?? false)
+            : true;
+
+        $filters['match_preferences'] = $matchPreferences;
 
         $activities = Activity::query()
+            ->whereDate('starts_on', '>=', now()->toDateString())
             ->whereDoesntHave('registrations', fn ($query) => $query->where('user_id', $user->id))
-            ->when($request->filled('city'), fn ($query) => $query->where('city', $request->input('city'))
-            )
-            ->when($request->filled('age'), function ($query) use ($request) {
-                $age = (int) $request->input('age');
+            ->when(($filters['cities'] ?? []) !== [], fn ($query) => $query->whereIn('city', $filters['cities']))
+            ->when(($filters['age_groups'] ?? []) !== [], fn ($query) => $query->whereIn('age_group', $filters['age_groups']))
+            ->when(($filters['period_names'] ?? []) !== [], fn ($query) => $query->whereIn('period_name', $filters['period_names']))
+            ->when($matchPreferences && $preference, function ($query) use ($preference) {
+                $preferredCities = $preference->cityList();
+                $preferredAgeGroups = $preference->ageGroupList();
+                $preferredPeriodNames = $preference->periodNameList();
 
-                $query
-                    ->where('min_age', '<=', $age)
-                    ->where('max_age', '>=', $age);
-            })
-            ->when($request->filled('from'), fn ($query) => $query->whereDate('ends_on', '>=', $request->date('from'))
-            )
-            ->when($request->filled('until'), fn ($query) => $query->whereDate('starts_on', '<=', $request->date('until'))
-            )
-            ->when($request->boolean('match_preferences') && $preference, function ($query) use ($preference) {
-                if ($preference->city) {
-                    $query->where('city', $preference->city);
+                if ($preferredCities !== []) {
+                    $query->whereIn('city', $preferredCities);
                 }
 
-                if ($preference->min_age !== null) {
-                    $query->where('max_age', '>=', $preference->min_age);
+                if ($preferredAgeGroups !== []) {
+                    $query->whereIn('age_group', $preferredAgeGroups);
                 }
 
-                if ($preference->max_age !== null) {
-                    $query->where('min_age', '<=', $preference->max_age);
-                }
-
-                if ($preference->starts_on) {
-                    $query->whereDate('ends_on', '>=', $preference->starts_on);
-                }
-
-                if ($preference->ends_on) {
-                    $query->whereDate('starts_on', '<=', $preference->ends_on);
+                if ($preferredPeriodNames !== []) {
+                    $query->whereIn('period_name', $preferredPeriodNames);
                 }
             })
             ->orderBy('starts_on')
@@ -55,14 +49,25 @@ class ActivityController extends Controller
             ->withQueryString();
 
         $cities = Activity::query()
+            ->whereDate('starts_on', '>=', now()->toDateString())
             ->whereDoesntHave('registrations', fn ($query) => $query->where('user_id', $user->id))
             ->distinct()
             ->orderBy('city')
             ->pluck('city');
 
+        $periods = Activity::query()
+            ->whereDate('starts_on', '>=', now()->toDateString())
+            ->orderBy('starts_on')
+            ->pluck('period_name')
+            ->filter()
+            ->unique()
+            ->values();
+
         $viewData = [
             'activities' => $activities,
             'cities' => $cities,
+            'periods' => $periods,
+            'ageGroups' => Activity::ageGroups(),
             'filters' => $filters,
             'preference' => $preference,
         ];
@@ -74,18 +79,5 @@ class ActivityController extends Controller
         }
 
         return view('activities.index', $viewData);
-    }
-
-    public function show(Activity $activity)
-    {
-        $existingRegistration = request()->user()
-            ->registrations()
-            ->where('activity_id', $activity->id)
-            ->first();
-
-        return view('activities.show', [
-            'activity' => $activity,
-            'existingRegistration' => $existingRegistration,
-        ]);
     }
 }

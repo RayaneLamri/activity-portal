@@ -1,21 +1,52 @@
 # Activity Portal
 
-Activity Portal est une version simplifiee et reconstruite d'une application metier developpee dans un contexte professionnel pour un organisme de colonies de vacances.
+Activity Portal is a Laravel demo application rebuilt from a business need encountered in a professional context.
 
-Le besoin initial etait de permettre a des moniteurs de consulter les camps disponibles, d'indiquer leurs preferences de lieu, de periode et de tranche d'age, puis de demander une inscription. Cote administration, l'objectif etait de centraliser le suivi des demandes, d'inviter les moniteurs les plus pertinents selon leurs preferences, de valider ou refuser les inscriptions, et d'exporter les futurs camps pour le suivi operationnel.
+It focuses on a common internal-tool problem: helping an organization match users with relevant activities, track registration requests, send targeted invitations and keep a clear operational view of upcoming activities.
 
-Stack principale : Laravel 12, PHP 8.2+, Breeze, Blade, Vite, Alpine.js, SQLite, Maatwebsite Excel.
+## What This Project Demonstrates
 
-## Besoins metier et choix techniques
+- Building a complete Laravel application around internal team workflows
+- Separating user and administrator roles
+- Managing registration requests, invitations and status transitions
+- Filtering activities through user preferences and operational criteria
+- Sending notification emails for key registration events
+- Exporting upcoming activities to Excel
 
-- **Deux espaces distincts** : Laravel Breeze fournit l'authentification, completee par des roles `admin` / `moniteur` et des middlewares dedies.
-- **Recherche de camps pertinents** : les moniteurs peuvent filtrer les camps par ville, periode et tranche d'age, puis enregistrer des preferences reutilisees dans l'application.
-- **Regles d'inscription centralisees** : les demandes, invitations, acceptations, refus, doublons, capacites et profils visibles sont geres dans un service metier dedie.
-- **Administration des demandes** : l'admin peut filtrer les inscriptions, consulter les preferences des moniteurs, accepter/refuser une demande et envoyer des invitations ciblees.
-- **Export operationnel** : les futurs camps peuvent etre exportes au format Excel avec les participants acceptes.
-- **Demo locale rapide** : SQLite et les seeders fournissent des donnees couvrant plusieurs cas metier : camps disponibles, complets, inscriptions en attente, invitations et preferences variees.
+## Demo Preview
 
-## Installation
+![User activity list](docs/screenshots/user-activities.png)
+![Admin registrations overview](docs/screenshots/admin-registrations.png)
+![User invitation flow](docs/screenshots/admin-invite.png)
+
+## Main Features
+
+User side:
+
+- Browse and filter available activities
+- Save preferences and apply them to activity results
+- Send registration requests
+- Review active registrations
+- Accept or decline invitations
+
+Admin side:
+
+- Review registrations from an operational dashboard
+- Accept or reject user requests
+- Review user preferences before inviting them
+- Send targeted invitations to relevant activities
+- Export upcoming activities to Excel
+
+## Tech Stack
+
+- Laravel 12 / PHP 8.2+
+- Laravel Breeze authentication
+- Blade, Alpine.js and Vite
+- Maatwebsite Excel
+
+## Local Installation
+
+The project requires PHP 8.2+, Composer and Node.js/npm.
 
 ```bash
 composer install
@@ -28,75 +59,61 @@ npm run build
 php artisan serve
 ```
 
-L'application est accessible sur :
+The `migrate --seed` command creates demo accounts and realistic scenarios.
 
-```text
+The application is available at:
+
+```txt
 http://127.0.0.1:8000
 ```
 
-## Comptes de demonstration
+To reset the local database and restore the demo data:
 
-Tous les comptes utilisent le mot de passe :
+```bash
+php artisan migrate:fresh --seed
+```
 
-```text
+## Demo Accounts
+
+All seeded accounts use the password:
+
+```txt
 password
 ```
 
-Admin :
-
-```text
-admin@example.com
+```txt
+admin@example.test
+marion@example.test
+antoine@example.test
+enzo@example.test
+maxime@example.test
+leslie@example.test
 ```
 
-Moniteurs :
+## Local Demo Flow
 
-```text
-marion@example.com
-antoine@example.com
-enzo@example.com
-maxime@example.com
+The seeders cover the main business cases: varied activities, user preferences, requests, invitations, acceptances, rejections, status history, partially filled capacities and a hidden/inactive user.
+
+To test both sides of the flow, open two sessions:
+
+- a regular browser window with `admin@example.test`;
+- a private browser window with `marion@example.test`.
+
+Suggested path:
+
+1. As a user, browse activities, apply preferences and send a registration request.
+2. As an admin, review the request, accept or reject it, and export upcoming activities.
+3. As an admin, send a targeted invitation to a user.
+4. As a user, accept or decline the invitation.
+
+Emails can be tested locally with Laravel's `log` mail driver:
+
+```env
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="demo@activity-portal.test"
+MAIL_FROM_NAME="Activity Portal"
 ```
 
-## Parcours de demonstration
+## Credits
 
-### Parcours moniteur
-
-Se connecter avec `marion@example.com`.
-
-1. Consulter la liste des camps disponibles.
-2. Filtrer les camps par ville, periode ou tranche d'age.
-3. Enregistrer des preferences.
-4. Appliquer les preferences pour voir les camps correspondants.
-5. Envoyer une demande d'inscription.
-6. Consulter ses inscriptions et verifier le statut.
-
-<!-- ![Liste des camps cote moniteur](docs/screenshots/monitor-activities.png) -->
-
-### Parcours administrateur
-
-Se connecter avec `admin@example.com`.
-
-1. Ouvrir la vue admin des inscriptions.
-2. Filtrer les camps ou les demandes.
-3. Accepter ou refuser une demande.
-4. Ouvrir la page des moniteurs.
-5. Consulter les preferences d'un moniteur.
-6. Envoyer une invitation vers un camp pertinent.
-7. Exporter les futurs camps au format Excel.
-
-<!-- ![Vue admin des inscriptions](docs/screenshots/admin-registrations.png) -->
-<!-- ![Invitation ciblee](docs/screenshots/admin-invite.png) -->
-
-## Tests
-
-```bash
-composer test
-```
-
-## Ameliorations possibles
-
-- ajouter davantage de tests metier automatises
-- utiliser des Policies Laravel pour affiner les autorisations
-- envoyer les notifications via queue
-- enrichir l'historique des decisions admin
-- ajouter une CI pour lancer formatage, tests et build
+Visual base adapted from the [Portal - Bootstrap 5 Admin Dashboard Template](https://themes.3rdwavemedia.com/bootstrap-templates/startup/portal-free-bootstrap-admin-dashboard-template-for-developers/).

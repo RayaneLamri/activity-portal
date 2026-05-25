@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Activity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ActivityIndexRequest extends FormRequest
 {
@@ -23,10 +25,12 @@ class ActivityIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'city' => ['nullable', 'string', 'max:255'],
-            'age' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'from' => ['nullable', 'date'],
-            'until' => ['nullable', 'date', 'after_or_equal:from'],
+            'cities' => ['nullable', 'array'],
+            'cities.*' => ['string', 'max:255'],
+            'age_groups' => ['nullable', 'array'],
+            'age_groups.*' => ['string', Rule::in(Activity::ageGroupKeys())],
+            'period_names' => ['nullable', 'array'],
+            'period_names.*' => ['string', 'max:255'],
             'match_preferences' => ['nullable', 'boolean'],
         ];
     }

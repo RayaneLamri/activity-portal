@@ -24,8 +24,15 @@ class RegistrationDecisionController extends Controller
         $this->registrationService->createInvite(
             $user,
             $activity,
-            $request->user(),
         );
+
+        if ($request->expectsJson()) {
+            return new JsonResponse([
+                'message' => 'Invitation sent.',
+                'activity_id' => $activity->id,
+                'user_id' => $user->id,
+            ]);
+        }
 
         return redirect()
             ->back()
@@ -34,7 +41,7 @@ class RegistrationDecisionController extends Controller
 
     public function accept(Registration $registration)
     {
-        $this->registrationService->accept($registration, request()->user());
+        $this->registrationService->accept($registration);
 
         if (request()->expectsJson()) {
             return new JsonResponse([
@@ -52,10 +59,7 @@ class RegistrationDecisionController extends Controller
 
     public function reject(Registration $registration)
     {
-        $this->registrationService->reject(
-            $registration,
-            request()->user(),
-        );
+        $this->registrationService->reject($registration);
 
         if (request()->expectsJson()) {
             return new JsonResponse([

@@ -11,12 +11,22 @@
 
         <script defer src="{{ asset('portal/assets/plugins/fontawesome/js/all.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link id="theme-style" rel="stylesheet" href="{{ asset('portal/assets/css/portal.css') }}">
-        @vite(['resources/js/app.js'])
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <style>
+            .select2-container--default .select2-selection--multiple {
+                min-height: 38px;
+                border-color: #ced4da;
+            }
+
+        </style>
+        @vite(['public/portal/assets/scss/portal.scss', 'resources/js/app.js'])
     </head>
 
     <body
         class="app"
+        data-bs-no-jquery
         data-flash-success="{{ e(session('success') ?? session('status') ?? '') }}"
         data-flash-warning="{{ e(session('warning') ?? '') }}"
         data-flash-error="{{ e(session('error') ?? '') }}"
@@ -47,9 +57,7 @@
             <footer class="app-footer">
                 <div class="container text-center py-3">
                     <small class="copyright">
-                        Designed with <span class="sr-only">love</span>
-                        <i class="fas fa-heart" style="color: #fb866a;"></i>
-                        by <a class="app-link" href="http://themes.3rdwavemedia.com" target="_blank" rel="noreferrer">Xiaoying Riley</a> for developers
+                        Activity Portal · Demo project
                     </small>
                 </div>
             </footer>

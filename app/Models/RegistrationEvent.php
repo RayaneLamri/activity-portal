@@ -20,8 +20,4 @@ class RegistrationEvent extends Model
         return $this->belongsTo(Registration::class);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

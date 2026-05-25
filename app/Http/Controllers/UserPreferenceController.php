@@ -3,30 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserPreferenceRequest;
-use App\Models\Activity;
 
 class UserPreferenceController extends Controller
 {
     public function edit()
     {
-        return view('preferences.edit', [
-            'preference' => request()->user()->preference,
-            'cities' => $cities = Activity::query()
-                ->distinct()
-                ->orderBy('city')
-                ->pluck('city')
-        ]);
+        return redirect()->route('profile.edit');
     }
 
     public function update(UpdateUserPreferenceRequest $request)
     {
+        $preferences = [
+            'cities' => array_values(array_filter($request->validated('cities') ?? [])),
+            'period_names' => array_values(array_filter($request->validated('period_names') ?? [])),
+            'age_groups' => array_values(array_filter($request->validated('age_groups') ?? [])),
+        ];
+
         $request->user()->preference()->updateOrCreate(
             ['user_id' => $request->user()->id],
-            $request->validated(),
+            $preferences,
         );
 
         return redirect()
-            ->route('preferences.edit')
+            ->route('profile.edit')
             ->with('status', 'Preferences updated.');
     }
 }

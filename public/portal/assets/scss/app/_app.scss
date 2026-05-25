@@ -16,12 +16,45 @@
 
 .app-wrapper {
    @include transition (all 0.4s ease-in-out);
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+}
+
+.app-content {
+	flex: 1 0 auto;
+}
+
+.app-footer {
+	flex-shrink: 0;
 }
 
 .app-page-title {
 	font-size: 1.5rem;
 	font-weight: bolder;
 	margin-bottom: 1.5rem;
+}
+
+.profile-initials {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: $theme-color-primary;
+	color: #fff;
+	font-weight: 700;
+	font-size: 1.25rem;
+	flex: 0 0 auto;
+}
+
+.registration-section-title {
+	color: $theme-text-color-primary;
+	font-size: 0.875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 .app-card {
@@ -350,12 +383,12 @@
 
 }
 
-.modal .btn-sm {
+.btn-sm {
 	padding: 0.125rem 0.5rem;
 	font-size: 0.75rem;
 }
 
-.modal .btn-sm.app-btn-danger, .modal .btn-sm.app-btn-primary {
+.btn-sm.app-btn-danger, .btn-sm.app-btn-primary {
 	border-width: 1px;
   	border-style: inherit;
 }
@@ -521,6 +554,20 @@
 
 .app-table-hover > tbody > tr:hover {
     background-color: mix($theme-bg-light, white, 50%);
+}
+
+.app-table-hover > tbody > tr.activity-row-full > * {
+	background-color: lighten($theme-color-primary, 37%);
+	border-top-color: lighten($theme-color-primary, 24%);
+	border-bottom-color: lighten($theme-color-primary, 24%);
+}
+
+.app-table-hover > tbody > tr.activity-row-full:hover > * {
+	background-color: lighten($theme-color-primary, 34%);
+}
+
+.app-table-hover > tbody > tr.activity-row-full > .cell:first-child {
+	border-left: 3px solid $theme-color-primary;
 }
 
 
