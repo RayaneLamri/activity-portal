@@ -12,7 +12,7 @@
     <form
         method="GET"
         action="{{ route('admin.users.invite-options', $user) }}"
-        class="row g-3 align-items-end mb-4"
+        class="row g-3 align-items-start mb-4"
         data-user-invite-filter-form
     >
         <input type="hidden" name="filtered" value="1">
@@ -107,14 +107,14 @@
             </select>
         </div>
 
-        <div class="col-12 col-lg-auto">
+        <div class="col-12 col-lg-auto align-self-center">
             <div class="form-check mb-2">
                 <input type="checkbox" name="match_preferences" value="1" class="form-check-input" id="invite-match-preferences-{{ $user->id }}" data-match-preferences @checked((bool) ($filters['match_preferences'] ?? false))>
                 <label class="form-check-label" for="invite-match-preferences-{{ $user->id }}">Match preferences</label>
             </div>
         </div>
 
-        <div class="col-auto">
+        <div class="col-auto align-self-center">
             <button
                 type="button"
                 class="btn app-btn-secondary"

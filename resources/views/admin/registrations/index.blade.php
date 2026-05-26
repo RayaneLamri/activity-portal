@@ -6,7 +6,7 @@
                 <div class="text-muted">Track upcoming activities, requests, invitations, participants, and capacity.</div>
             </div>
             <div class="col-auto">
-                <a href="{{ route('admin.exports.upcoming-activities') }}" class="btn app-btn-secondary">
+                <a href="{{ route('admin.exports.upcoming-activities') }}" class="btn app-btn-primary">
                     <i class="fa-solid fa-download me-1"></i>
                     Export Future Activities
                 </a>
@@ -23,7 +23,7 @@
                     $selectedAgeGroups = $filters['age_groups'] ?? [];
                 @endphp
 
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-4">
                     <input id="search" type="search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="Search camp, reference, location">
                 </div>
 
@@ -53,7 +53,7 @@
                     </select>
                 </div>
 
-                <div class="col-auto">
+                <div class="col-12 col-lg-auto ms-lg-auto">
                     <button type="button" class="btn app-btn-secondary" data-live-filter-reset>Clear</button>
                 </div>
             </form>
