@@ -49,6 +49,8 @@ Admin side:
 The project requires PHP 8.2+, Composer and Node.js/npm.
 
 ```bash
+git clone https://github.com/RayaneLamri/activity-portal.git
+cd analytics-bridge
 composer install
 npm install
 cp .env.example .env
