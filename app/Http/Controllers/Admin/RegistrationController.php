@@ -88,10 +88,10 @@ class RegistrationController extends Controller
         ], true), 404);
 
         $activity->load([
-                'registrations' => fn ($query) => $query
-                    ->where('status', $status)
-                    ->with('user')
-                    ->orderBy('date'),
+            'registrations' => fn ($query) => $query
+                ->where('status', $status)
+                ->with('user')
+                ->orderBy('date'),
         ]);
 
         return new JsonResponse([

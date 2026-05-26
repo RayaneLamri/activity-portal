@@ -10,7 +10,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="shortcut icon" href="{{ asset('portal/assets/favicon.ico') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('portal/assets/favicon.svg') }}">
 
         <script defer src="{{ asset('portal/assets/plugins/fontawesome/js/all.min.js') }}"></script>
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">

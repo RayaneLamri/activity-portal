@@ -15,6 +15,13 @@ class Registration extends Model
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'date' => 'datetime',
+        ];
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -28,5 +35,15 @@ class Registration extends Model
     public function events()
     {
         return $this->hasMany(RegistrationEvent::class);
+    }
+
+    public function statusLabel(): string
+    {
+        return self::labelFor($this->status);
+    }
+
+    public function statusBadgeClass(): string
+    {
+        return self::badgeClassFor($this->status);
     }
 }

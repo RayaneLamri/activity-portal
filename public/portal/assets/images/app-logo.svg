@@ -1,15 +1,11 @@
-<svg width="215" height="215" viewBox="0 0 215 215" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+<svg width="256" height="256" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
   <title id="title">Activity Portal logo</title>
-  <rect width="215" height="215" rx="48" fill="#4F46E5"/>
-  <path d="M47 58H168" stroke="white" stroke-width="14" stroke-linecap="round"/>
-  <path d="M52 88H111" stroke="#C7D2FE" stroke-width="10" stroke-linecap="round"/>
-  <path d="M73 39V72" stroke="white" stroke-width="14" stroke-linecap="round"/>
-  <path d="M142 39V72" stroke="white" stroke-width="14" stroke-linecap="round"/>
-  <circle cx="73" cy="58" r="5" fill="#4F46E5"/>
-  <circle cx="142" cy="58" r="5" fill="#4F46E5"/>
-  <path d="M56 154C70 125 90 105 114 94C135 84 153 91 169 107" stroke="#C7D2FE" stroke-width="14" stroke-linecap="round"/>
-  <circle cx="55" cy="155" r="24" fill="white"/>
-  <circle cx="114" cy="94" r="20" fill="white"/>
-  <circle cx="170" cy="108" r="24" fill="white"/>
-  <path d="M159 108L168 117L184 97" stroke="#22C55E" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="14" fill="#4F46E5"/>
+  <g transform="translate(32 32) scale(1.12) translate(-32 -32)">
+    <path d="M16 43C21 33 27 27 34 25C41 23 46 25 50 30" stroke="#C7D2FE" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="16" cy="43" r="7" fill="white"/>
+    <circle cx="34" cy="25" r="6" fill="white"/>
+    <circle cx="50" cy="30" r="7" fill="white"/>
+    <circle cx="50" cy="30" r="3.3" fill="#22C55E"/>
+  </g>
 </svg>

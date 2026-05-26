@@ -13,8 +13,14 @@ class ActivityController extends Controller
         $user = $request->user();
         $filters = $request->validated();
         $preference = $user->preference;
-        $hasExplicitFilters = collect(['cities', 'age_groups', 'period_names', 'match_preferences'])
-            ->contains(fn (string $key) => $request->query->has($key));
+        $hasExplicitFilters = false;
+
+        foreach (['cities', 'age_groups', 'period_names', 'match_preferences'] as $key) {
+            if ($request->query->has($key)) {
+                $hasExplicitFilters = true;
+                break;
+            }
+        }
         $matchPreferences = $hasExplicitFilters
             ? (bool) ($filters['match_preferences'] ?? false)
             : true;
@@ -28,21 +34,7 @@ class ActivityController extends Controller
             ->when(($filters['age_groups'] ?? []) !== [], fn ($query) => $query->whereIn('age_group', $filters['age_groups']))
             ->when(($filters['period_names'] ?? []) !== [], fn ($query) => $query->whereIn('period_name', $filters['period_names']))
             ->when($matchPreferences && $preference, function ($query) use ($preference) {
-                $preferredCities = $preference->cityList();
-                $preferredAgeGroups = $preference->ageGroupList();
-                $preferredPeriodNames = $preference->periodNameList();
-
-                if ($preferredCities !== []) {
-                    $query->whereIn('city', $preferredCities);
-                }
-
-                if ($preferredAgeGroups !== []) {
-                    $query->whereIn('age_group', $preferredAgeGroups);
-                }
-
-                if ($preferredPeriodNames !== []) {
-                    $query->whereIn('period_name', $preferredPeriodNames);
-                }
+                $preference->applyToActivityQuery($query);
             })
             ->orderBy('starts_on')
             ->paginate(10)

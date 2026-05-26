@@ -8,12 +8,8 @@ class HomeRoute
 {
     public static function nameFor(?User $user): string
     {
-        if ($user?->isAdmin()) {
-            return 'admin.registrations.index';
-        }
-
-        if ($user?->isUser()) {
-            return 'activities.index';
+        if ($user?->isAdmin() || $user?->isUser()) {
+            return 'dashboard';
         }
 
         return 'login';

@@ -388,7 +388,7 @@
 	font-size: 0.75rem;
 }
 
-.btn-sm.app-btn-danger, .btn-sm.app-btn-primary {
+.btn-sm.app-btn-danger, .btn-sm.app-btn-primary, .btn-sm.app-btn-success {
 	border-width: 1px;
   	border-style: inherit;
 }
@@ -522,6 +522,10 @@
 	
 }
 
+.account-settings {
+	max-width: 760px;
+}
+
 .app-card-settings {
 	font-size: 1rem;
 	
@@ -546,7 +550,6 @@
 		}
 	}
 }
-
 
 .chart-container {
 	position: relative;

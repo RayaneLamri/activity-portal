@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\User;
+use App\Models\UserPreference;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,12 +64,16 @@ class RegisteredUserController extends Controller
         ]);
 
         $preferences = [
-            'cities' => array_values(array_filter($validated['cities'] ?? [])),
-            'age_groups' => array_values(array_filter($validated['age_groups'] ?? [])),
-            'period_names' => array_values(array_filter($validated['period_names'] ?? [])),
+            'cities' => UserPreference::cleanList($validated['cities'] ?? []),
+            'age_groups' => UserPreference::cleanList($validated['age_groups'] ?? []),
+            'period_names' => UserPreference::cleanList($validated['period_names'] ?? []),
         ];
 
-        if (array_filter($preferences) !== []) {
+        if (
+            $preferences['cities'] !== []
+            || $preferences['age_groups'] !== []
+            || $preferences['period_names'] !== []
+        ) {
             $user->preference()->create($preferences);
         }
 

@@ -57,12 +57,7 @@ class RegistrationEventController extends Controller
         return view('admin.registration-events.index', [
             'events' => $events,
             'filters' => $request->validated(),
-            'actions' => [
-                Registration::REQUESTED,
-                Registration::INVITED,
-                Registration::ACCEPTED,
-                Registration::REJECTED,
-            ],
+            'actions' => Registration::statuses(),
         ]);
     }
 }

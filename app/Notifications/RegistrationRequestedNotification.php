@@ -28,15 +28,18 @@ class RegistrationRequestedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $this->registration->loadMissing('activity');
+        $this->registration->loadMissing(['activity', 'user']);
         $activity = $this->registration->activity;
+        $user = $this->registration->user;
 
         return (new MailMessage)
-            ->subject('Your registration request has been received')
+            ->subject('New registration request')
             ->greeting("Hello {$notifiable->name},")
-            ->line("Your request for {$activity->title} has been received.")
+            ->line("{$user->name} has requested registration for {$activity->title}.")
+            ->line("User: {$user->name} ({$user->email})")
             ->line("Location: {$activity->location_name}")
             ->line("Period: {$activity->period_name}")
-            ->line("Dates: {$activity->starts_on?->format('Y-m-d')} - {$activity->ends_on?->format('Y-m-d')}");
+            ->line("Dates: {$activity->starts_on?->format('Y-m-d')} - {$activity->ends_on?->format('Y-m-d')}")
+            ->action('Review registrations', route('admin.registrations.index'));
     }
 }

@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
         };
 
         $seedUser([
-            'name' => 'Rob Moerman',
+            'name' => 'Admin',
             'email' => 'admin@example.test',
             'role' => 'admin',
         ]);

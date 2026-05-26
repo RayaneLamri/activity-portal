@@ -3,6 +3,7 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Admin Registrations</h1>
+                <div class="text-muted">Track upcoming activities, requests, invitations, participants, and capacity.</div>
             </div>
             <div class="col-auto">
                 <a href="{{ route('admin.exports.upcoming-activities') }}" class="btn app-btn-secondary">

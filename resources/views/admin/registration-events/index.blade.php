@@ -3,6 +3,7 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Registration Events Overview</h1>
+                <div class="text-muted">Review registration status changes across requests, invitations, and decisions.</div>
             </div>
         </div>
     </x-slot>
@@ -49,23 +50,22 @@
                     <thead>
                         <tr>
                             <th class="cell">Date</th>
-                            <th class="cell">Status</th>
+                            <th class="cell text-center">Status</th>
                             <th class="cell">Registration</th>
                             <th class="cell">Activity</th>
-                            <th class="cell">Details</th>
+                            <th class="cell text-center"></th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($events as $event)
                             <tr>
                                 <td class="cell">
-                                    <span>{{ \Illuminate\Support\Carbon::parse($event->date)->format('d M Y') }}</span>
-                                    <span class="note">{{ \Illuminate\Support\Carbon::parse($event->date)->format('H:i') }}</span>
+                                    <span>{{ $event->date?->format('d/m/Y') }}</span>
+                                    <span class="note">{{ $event->date?->format('H:i') }}</span>
                                 </td>
-                                <td class="cell">
-                                    @php($eventStatus = $event->to_status ?? $event->action)
-                                    <span class="badge {{ $eventStatus === 'accepted' ? 'bg-success' : ($eventStatus === 'rejected' ? 'bg-danger' : 'bg-warning') }}">
-                                        {{ ucfirst($eventStatus) }}
+                                <td class="cell text-center">
+                                    <span class="badge {{ $event->currentStatusBadgeClass() }}">
+                                        {{ $event->currentStatusLabel() }}
                                     </span>
                                 </td>
                                 <td class="cell">

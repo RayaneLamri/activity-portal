@@ -29,7 +29,7 @@
                             </td>
                             <td class="cell">
                                 <span>{{ $activity->period_name ?? 'No period' }}</span>
-                                <span class="note">{{ $activity->starts_on?->format('d M Y') }} - {{ $activity->ends_on?->format('d M Y') }}</span>
+                                <span class="note">{{ $activity->starts_on?->format('d/m/Y') }} - {{ $activity->ends_on?->format('d/m/Y') }}</span>
                             </td>
                             <td class="cell">{{ $activity->ageGroupLabel() }}</td>
                             <td class="cell text-center">

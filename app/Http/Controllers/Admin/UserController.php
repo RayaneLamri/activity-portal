@@ -65,21 +65,7 @@ class UserController extends Controller
                 });
             })
             ->when($filters['match_preferences'] && $preference, function ($query) use ($preference): void {
-                $preferredCities = $preference->cityList();
-                $preferredPeriodNames = $preference->periodNameList();
-                $preferredAgeGroups = $preference->ageGroupList();
-
-                if ($preferredCities !== []) {
-                    $query->whereIn('city', $preferredCities);
-                }
-
-                if ($preferredPeriodNames !== []) {
-                    $query->whereIn('period_name', $preferredPeriodNames);
-                }
-
-                if ($preferredAgeGroups !== []) {
-                    $query->whereIn('age_group', $preferredAgeGroups);
-                }
+                $preference->applyToActivityQuery($query);
             })
             ->when($filters['cities'] !== [], fn ($query) => $query->whereIn('city', $filters['cities']))
             ->when($filters['period_names'] !== [], fn ($query) => $query->whereIn('period_name', $filters['period_names']))
@@ -148,9 +134,9 @@ class UserController extends Controller
 
         return [
             'search' => $validated['search'] ?? null,
-            'cities' => array_values(array_filter($validated['cities'] ?? [])),
-            'period_names' => array_values(array_filter($validated['period_names'] ?? [])),
-            'age_groups' => array_values(array_filter($validated['age_groups'] ?? [])),
+            'cities' => UserPreference::cleanList($validated['cities'] ?? []),
+            'period_names' => UserPreference::cleanList($validated['period_names'] ?? []),
+            'age_groups' => UserPreference::cleanList($validated['age_groups'] ?? []),
             'match_preferences' => $request->boolean('match_preferences'),
         ];
     }

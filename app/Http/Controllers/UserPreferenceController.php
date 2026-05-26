@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserPreferenceRequest;
+use App\Models\UserPreference;
 
 class UserPreferenceController extends Controller
 {
@@ -14,9 +15,9 @@ class UserPreferenceController extends Controller
     public function update(UpdateUserPreferenceRequest $request)
     {
         $preferences = [
-            'cities' => array_values(array_filter($request->validated('cities') ?? [])),
-            'period_names' => array_values(array_filter($request->validated('period_names') ?? [])),
-            'age_groups' => array_values(array_filter($request->validated('age_groups') ?? [])),
+            'cities' => UserPreference::cleanList($request->validated('cities') ?? []),
+            'period_names' => UserPreference::cleanList($request->validated('period_names') ?? []),
+            'age_groups' => UserPreference::cleanList($request->validated('age_groups') ?? []),
         ];
 
         $request->user()->preference()->updateOrCreate(

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class UserPreference extends Model
@@ -21,7 +22,15 @@ class UserPreference extends Model
 
     public function cityList(): array
     {
-        return $this->cities ?? array_values(array_filter([$this->city]));
+        if (is_array($this->cities) && $this->cities !== []) {
+            return $this->cities;
+        }
+
+        if (! empty($this->city)) {
+            return [$this->city];
+        }
+
+        return [];
     }
 
     public function ageGroupList(): array
@@ -31,7 +40,7 @@ class UserPreference extends Model
 
     public function periodNameList(): array
     {
-        return array_values(array_filter($this->period_names ?? []));
+        return self::cleanList($this->period_names);
     }
 
     public function citySummary(): string
@@ -49,9 +58,53 @@ class UserPreference extends Model
             return 'Any age';
         }
 
-        return collect($groups)
-            ->map(fn (string $group) => Activity::ageGroupLabelFor($group))
-            ->implode(', ');
+        $labels = [];
+
+        foreach ($groups as $group) {
+            $labels[] = Activity::ageGroupLabelFor($group);
+        }
+
+        return implode(', ', $labels);
+    }
+
+    public function applyToActivityQuery(Builder $query): void
+    {
+        $cities = $this->cityList();
+
+        if ($cities !== []) {
+            $query->whereIn('city', $cities);
+        }
+
+        $ageGroups = $this->ageGroupList();
+
+        if ($ageGroups !== []) {
+            $query->whereIn('age_group', $ageGroups);
+        }
+
+        $periodNames = $this->periodNameList();
+
+        if ($periodNames !== []) {
+            $query->whereIn('period_name', $periodNames);
+        }
+    }
+
+    public static function cleanList(?array $values): array
+    {
+        if (! is_array($values)) {
+            return [];
+        }
+
+        $cleanValues = [];
+
+        foreach ($values as $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $cleanValues[] = $value;
+        }
+
+        return $cleanValues;
     }
 
     public function user()

@@ -3,6 +3,7 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Users</h1>
+                <div class="text-muted">Manage user visibility and send targeted activity invitations.</div>
             </div>
         </div>
     </x-slot>
@@ -15,7 +16,7 @@
                         <tr>
                             <th class="cell">User</th>
                             <th class="cell text-center">Visible</th>
-                            <th class="cell"></th>
+                            <th class="cell text-center"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,8 +42,8 @@
                                         </div>
                                     </form>
                                 </td>
-                                <td class="cell">
-                                    <div class="d-flex flex-wrap gap-2">
+                                <td class="cell text-center">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
                                         <button
                                             type="button"
                                             class="btn-sm app-btn-primary"

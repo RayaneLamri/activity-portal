@@ -1,24 +1,26 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\Admin\RegistrationEventController;
 use App\Http\Controllers\Admin\RegistrationController as AdminRegistrationController;
 use App\Http\Controllers\Admin\RegistrationDecisionController;
+use App\Http\Controllers\Admin\RegistrationEventController;
 use App\Http\Controllers\Admin\UpcomingActivityExportController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MyRegistrationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserPreferenceController;
-use App\Support\HomeRoute;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return redirect()->route(HomeRoute::nameFor(request()->user()));
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

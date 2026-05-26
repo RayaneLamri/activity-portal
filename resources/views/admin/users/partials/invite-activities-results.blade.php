@@ -7,7 +7,7 @@
                 <th class="cell">Period</th>
                 <th class="cell">Age</th>
                 <th class="cell">Capacity</th>
-                <th class="cell"></th>
+                <th class="cell text-center"></th>
             </tr>
         </thead>
         <tbody>
@@ -22,7 +22,7 @@
                     </td>
                     <td class="cell">
                         <span>{{ $activity->period_name ?? 'No period' }}</span>
-                        <span class="note">{{ $activity->starts_on?->format('d M Y') }} - {{ $activity->ends_on?->format('d M Y') }}</span>
+                        <span class="note">{{ $activity->starts_on?->format('d/m/Y') }} - {{ $activity->ends_on?->format('d/m/Y') }}</span>
                     </td>
                     <td class="cell">
                         {{ $activity->ageGroupLabel() }}
@@ -30,7 +30,7 @@
                     <td class="cell">
                         {{ $activity->accepted_registrations_count }} / {{ $activity->capacity }}
                     </td>
-                    <td class="cell">
+                    <td class="cell text-center">
                         <form
                             id="invite-user-{{ $user->id }}-activity-{{ $activity->id }}"
                             method="POST"
@@ -38,7 +38,7 @@
                             data-admin-invite-form
                             data-user-name="{{ $user->name }}"
                             data-activity-title="{{ $activity->title }}"
-                            data-activity-date="{{ $activity->starts_on?->format('d M Y') }} - {{ $activity->ends_on?->format('d M Y') }}"
+                            data-activity-date="{{ $activity->starts_on?->format('d/m/Y') }} - {{ $activity->ends_on?->format('d/m/Y') }}"
                             data-activity-location="{{ $activity->location_name }}{{ $activity->city ? ', '.$activity->city : '' }}"
                         >
                             @csrf

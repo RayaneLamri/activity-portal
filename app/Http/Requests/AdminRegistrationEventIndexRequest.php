@@ -26,12 +26,7 @@ class AdminRegistrationEventIndexRequest extends FormRequest
     {
         return [
             'search' => ['nullable', 'string', 'max:120'],
-            'action' => ['nullable', Rule::in([
-                Registration::REQUESTED,
-                Registration::INVITED,
-                Registration::ACCEPTED,
-                Registration::REJECTED,
-            ])],
+            'action' => ['nullable', Rule::in(Registration::statuses())],
             'from' => ['nullable', 'date'],
             'until' => ['nullable', 'date', 'after_or_equal:from'],
         ];

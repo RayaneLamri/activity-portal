@@ -15,9 +15,30 @@ class RegistrationEvent extends Model
 
     public $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'date' => 'datetime',
+        ];
+    }
+
     public function registration()
     {
         return $this->belongsTo(Registration::class);
     }
 
+    public function currentStatus(): ?string
+    {
+        return $this->to_status ?? $this->action;
+    }
+
+    public function currentStatusLabel(): string
+    {
+        return self::labelFor($this->currentStatus());
+    }
+
+    public function currentStatusBadgeClass(): string
+    {
+        return self::badgeClassFor($this->currentStatus());
+    }
 }

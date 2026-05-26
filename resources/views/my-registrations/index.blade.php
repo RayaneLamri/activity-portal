@@ -54,7 +54,6 @@
                                     <th class="cell">Activity</th>
                                     <th class="cell">Location</th>
                                     <th class="cell">Period</th>
-                                    <th class="cell">Dates</th>
                                     <th class="cell">Age</th>
                                     <th class="cell">Updated</th>
                                     @if ($section['show_actions'])
@@ -67,7 +66,7 @@
                                     @php
                                         $activity = $registration->activity;
                                         $location = $activity->location_name . ($activity->city ? ' - '.$activity->city : '');
-                                        $activityDates = $activity->starts_on?->format('d M Y') . ' - ' . $activity->ends_on?->format('d M Y');
+                                        $activityDates = $activity->starts_on?->format('d/m/Y') . ' - ' . $activity->ends_on?->format('d/m/Y');
                                     @endphp
 
                                     <tr>
@@ -76,14 +75,13 @@
                                             <span class="d-block">{{ $activity->location_name }}</span>
                                             <span class="note">{{ $activity->city ?: 'No city' }}</span>
                                         </td>
-                                        <td class="cell">{{ $activity->period_name ?? 'No period' }}</td>
                                         <td class="cell">
-                                            <span>{{ $activity->starts_on?->format('d M Y') }}</span>
-                                            <span class="note">{{ $activity->ends_on?->format('d M Y') }}</span>
+                                            <span>{{ $activity->period_name ?? 'No period' }}</span>
+                                            <span class="note">{{ $activityDates }}</span>
                                         </td>
                                         <td class="cell">{{ $activity->ageGroupLabel() }}</td>
                                         <td class="cell">
-                                            <span>{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d M Y') }}</span>
+                                            <span>{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d/m/Y') }}</span>
                                             <span class="note">{{ \Illuminate\Support\Carbon::parse($registration->date)->format('H:i') }}</span>
                                         </td>
                                         @if ($section['show_actions'])
@@ -99,7 +97,7 @@
                                                         data-activity-location="{{ $location }}"
                                                     >
                                                         @csrf
-                                                        <button type="submit" class="btn-sm app-btn-primary">Accept</button>
+                                                        <button type="submit" class="btn-sm app-btn-success">Accept</button>
                                                     </form>
 
                                                     <form
@@ -112,7 +110,7 @@
                                                         data-activity-location="{{ $location }}"
                                                     >
                                                         @csrf
-                                                        <button type="submit" class="btn-sm app-btn-secondary">Decline</button>
+                                                        <button type="submit" class="btn-sm app-btn-danger">Decline</button>
                                                     </form>
                                                 </div>
                                             </td>

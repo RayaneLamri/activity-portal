@@ -9,9 +9,8 @@
                                 <th class="cell">Activity</th>
                                 <th class="cell">Location</th>
                                 <th class="cell">Period</th>
-                                <th class="cell">Dates</th>
                                 <th class="cell">Age</th>
-                                <th class="cell"></th>
+                                <th class="cell text-center"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -25,19 +24,18 @@
                                         <span class="d-block">{{ $activity->location_name }}</span>
                                         <span class="note">{{ $activity->city ?: 'No city' }}</span>
                                     </td>
-                                    <td class="cell">{{ $activity->period_name ?? 'No period' }}</td>
                                     <td class="cell">
-                                        <span>{{ $activity->starts_on?->format('d M Y') }}</span>
-                                        <span class="note">{{ $activity->ends_on?->format('d M Y') }}</span>
+                                        <span>{{ $activity->period_name ?? 'No period' }}</span>
+                                        <span class="note">{{ $activity->starts_on?->format('d/m/Y') }} - {{ $activity->ends_on?->format('d/m/Y') }}</span>
                                     </td>
                                     <td class="cell">{{ $activity->ageGroupLabel() }}</td>
-                                    <td class="cell text-end">
+                                    <td class="cell text-center">
                                         <form
                                             method="POST"
                                             action="{{ route('my-registrations.store') }}"
                                             data-registration-request-form
                                             data-activity-title="{{ $activity->title }}"
-                                            data-activity-date="{{ $activity->starts_on?->format('d M Y') }} - {{ $activity->ends_on?->format('d M Y') }}"
+                                            data-activity-date="{{ $activity->starts_on?->format('d/m/Y') }} - {{ $activity->ends_on?->format('d/m/Y') }}"
                                             data-activity-location="{{ $activity->location_name }}{{ $activity->city ? ' - '.$activity->city : '' }}"
                                         >
                                             @csrf
@@ -48,7 +46,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="cell text-center py-4">No activities match the selected filters.</td>
+                                    <td colspan="5" class="cell text-center py-4">No activities match the selected filters.</td>
                                 </tr>
                             @endforelse
                         </tbody>

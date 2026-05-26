@@ -3,6 +3,7 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Registration History</h1>
+                <div class="text-muted">Review every status change for this registration.</div>
             </div>
             <div class="col-auto">
                 <a href="{{ route('admin.registration-events.index') }}" class="btn app-btn-secondary">Back to overview</a>
@@ -30,14 +31,14 @@
                     <div class="item border-bottom py-3">
                         <div class="item-label"><strong>Current status</strong></div>
                         <div class="item-data">
-                            <span class="badge {{ $registration->status === 'accepted' ? 'bg-success' : ($registration->status === 'rejected' ? 'bg-danger' : 'bg-warning') }}">
-                                {{ ucfirst($registration->status) }}
+                            <span class="badge {{ $registration->statusBadgeClass() }}">
+                                {{ $registration->statusLabel() }}
                             </span>
                         </div>
                     </div>
                     <div class="item py-3">
                         <div class="item-label"><strong>Created</strong></div>
-                        <div class="item-data">{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d M Y H:i') }}</div>
+                        <div class="item-data">{{ $registration->date?->format('d M Y H:i') }}</div>
                     </div>
                 </div>
             </div>
@@ -52,10 +53,10 @@
                             <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>
                                     <div class="fw-semibold text-uppercase small">
-                                        {{ ucfirst($event->to_status ?? $event->action) }}
+                                        {{ $event->currentStatusLabel() }}
                                     </div>
                                 </div>
-                                <div class="text-muted small">{{ \Illuminate\Support\Carbon::parse($event->date)->format('d M Y H:i') }}</div>
+                                <div class="text-muted small">{{ $event->date?->format('d M Y H:i') }}</div>
                             </div>
                         </div>
                     @empty
