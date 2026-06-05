@@ -38,7 +38,7 @@ The project addresses an internal organization problem: when activities, registr
 
 ## Technical Stack
 
-- PHP / Laravel
+- Laravel 12 / PHP 8.2+
 - Bootstrap
 - Vanilla JavaScript / jQuery
 
