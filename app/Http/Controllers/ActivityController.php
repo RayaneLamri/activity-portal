@@ -2,84 +2,85 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Activity;
-use App\Http\Requests\ActivityIndexRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ActivityController extends Controller
 {
-    public function index(ActivityIndexRequest $request)
+    public function index(Request $request)
     {
         $user = $request->user();
+        $today = now()->toDateString();
+        $search = $request->query('search') ?: null;
+        $cities = (array) $request->query('cities', []);
+        $periodNames = (array) $request->query('period_names', []);
+        $minAge = $request->filled('min_age') ? (int) $request->query('min_age') : null;
+        $maxAge = $request->filled('max_age') ? (int) $request->query('max_age') : null;
+
         $preference = $user->preference;
+        $preferredFilters = Activity::filtersForPreference($preference);
+
+        $matchPreferences = $request->hasAny([
+            'cities',
+            'period_names',
+            'min_age',
+            'max_age',
+            'search',
+            'match_preferences',
+        ]) ? $request->boolean('match_preferences') : true;
+
+        $filters = [
+            'search' => $search,
+            'cities' => $cities,
+            'period_names' => $periodNames,
+            'min_age' => $minAge,
+            'max_age' => $maxAge,
+            'match_preferences' => $matchPreferences,
+        ];
 
         $activities = Activity::query()
-        ->where('is_active', true)
-        ->when($request->filled('city'), fn ($query) =>
-            $query->where('city', $request->input('city'))
-        )
-        ->when($request->filled('age'), function ($query) use ($request) {
-            $age = (int) $request->input('age');
+            ->upcoming($today)
+            ->available()
+            ->withoutUserRegistration($user)
+            ->applyFilters($filters)
+            ->when($matchPreferences, fn ($query) => $query->applyPreference($preference))
+            ->orderBy('starts_on')
+            ->orderBy('title')
+            ->paginate(10)
+            ->withQueryString();
 
-            $query
-            ->where('min_age', '<=', $age)
-            ->where('max_age', '>=', $age);
-        })
-        ->when($request->filled('from'), fn ($query) =>
-            $query->whereDate('ends_on', '>=', $request->date('from'))
-        )
-        ->when($request->filled('until'), fn ($query) =>
-            $query->whereDate('starts_on', '<=', $request->date('until'))
-        )
-        ->when($request->boolean('match_preferences') && $preference, function ($query) use ($preference) {
-            if ($preference->preferred_city) {
-                $query->where('city', $preference->preferred_city);
-            }
+        $cityOptions = Activity::cityOptions(
+            Activity::query()
+                ->upcoming($today)
+                ->available()
+                ->withoutUserRegistration($user)
+        );
 
-            if ($preference->preferred_min_age !== null) {
-                $query->where('max_age', '>=', $preference->preferred_min_age);
-            }
+        $periodOptions = Activity::periodOptions(
+            Activity::query()
+                ->upcoming($today)
+                ->available()
+                ->withoutUserRegistration($user)
+        );
 
-            if ($preference->preferred_max_age !== null) {
-                $query->where('min_age', '<=', $preference->preferred_max_age);
-            }
-
-            if ($preference->available_from) {
-                $query->whereDate('ends_on', '>=', $preference->available_from);
-            }
-
-            if ($preference->available_until) {
-                $query->whereDate('starts_on', '<=', $preference->available_until);
-            }
-        })
-        ->orderBy('starts_on')
-        ->paginate(10)
-        ->withQueryString();
-
-        $cities = Activity::query()
-        ->where('is_active', true)
-        ->distinct()
-        ->orderBy('city')
-        ->pluck('city');
-
-        return view('activities.index', [
+        $data = [
             'activities' => $activities,
-            'cities' => $cities,
-            'preference' => $preference,
-            'filters' => $request->validated(),
-        ]);
-    }
+            'cities' => $cityOptions,
+            'periods' => $periodOptions,
+            'filters' => $filters,
+            'preferredCities' => $preferredFilters['cities'],
+            'preferredPeriodNames' => $preferredFilters['period_names'],
+            'preferredMinAge' => $preferredFilters['min_age'] ?? 3,
+            'preferredMaxAge' => $preferredFilters['max_age'] ?? 18,
+        ];
 
-    public function show(Activity $activity)
-    {
-        $existingRegistration = request()->user()
-        ->registrations()
-        ->where('activity_id', $activity->id)
-        ->first();
+        if ($request->expectsJson()) {
+            return new JsonResponse([
+                'html' => view('activities.partials.results', $data)->render(),
+            ]);
+        }
 
-        return view('activities.show', [
-            'activity' => $activity,
-            'existingRegistration' => $existingRegistration,
-        ]);
+        return view('activities.index', $data);
     }
 }

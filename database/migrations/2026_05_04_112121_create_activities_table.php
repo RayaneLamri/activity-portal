@@ -18,12 +18,12 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('location_name');
             $table->string('city')->nullable()->index();
+            $table->string('period_name')->nullable()->index();
             $table->unsignedTinyInteger('min_age')->nullable();
             $table->unsignedTinyInteger('max_age')->nullable();
             $table->date('starts_on')->index();
             $table->date('ends_on');
-            $table->unsignedInteger('capacity')->nullable();
-            $table->boolean('is_active')->default(true)->index();
+            $table->unsignedInteger('capacity');
         });
     }
 

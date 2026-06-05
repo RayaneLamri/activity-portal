@@ -11890,15 +11890,16 @@ button.close:focus {
 
 /* Header */
 .app-header {
-  -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgb(231, 233, 236.5);
-  height: 56px;
-  background: #fff;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border-bottom: 0;
+  height: 0;
+  background: transparent;
 }
 
 .app-header-inner {
+  display: none;
   position: relative;
 }
 
@@ -12332,7 +12333,7 @@ button.close:focus {
   height: 100%;
   width: 100%;
   background: #f5f6fe;
-  padding-top: 56px;
+  padding-top: 0;
   overflow-x: hidden;
 }
 

@@ -2,27 +2,38 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\HasRegistrationStatuses;
-use App\Models\RegistrationEvent;
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class RegistrationEvent extends Model
 {
     use HasRegistrationStatuses;
-    
+
     public const CREATED_AT = 'date';
+
     public const UPDATED_AT = null;
 
     public $guarded = [];
 
-    public function events()
+    protected function casts(): array
     {
-        return $this->hasMany(RegistrationEvent::class)->orderByDesc('date');
+        return [
+            'date' => 'datetime',
+        ];
     }
 
-    public function user()
+    public function registration()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Registration::class);
+    }
+
+    public function actionLabel(): string
+    {
+        return self::labelFor($this->action);
+    }
+
+    public function actionBadgeClass(): string
+    {
+        return self::badgeClassFor($this->action);
     }
 }

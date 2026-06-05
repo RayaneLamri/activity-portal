@@ -1,59 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Activity Portal
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Activity Portal is a Laravel application that centralizes activity management, registrations and invitations into a single tool.
 
-## About Laravel
+The project addresses an internal organization problem: when activities, registrations and invitations are spread across multiple tools, operational visibility becomes harder. The application centralizes these workflows and allows users, registrations and invitations to be managed from a single entry point.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Main Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Separation between user and administrator roles
+- Registration requests, invitations and status transition management
+- Activity filtering based on user preferences
+- Email notifications for key registration lifecycle events
+- Export upcoming activities to Excel
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Demo Overview
 
-## Learning Laravel
+![User activity list](docs/screenshots/user-activities.png)
+![Admin registrations overview](docs/screenshots/admin-registrations.png)
+![User invitation flow](docs/screenshots/admin-invite.png)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## How It Works
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### User side
 
-## Laravel Sponsors
+- Browse and filter available activities
+- Save preferences and apply them to results
+- Send registration requests for relevant activities
+- View current registrations
+- Accept or decline invitations
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Administration side
 
-### Premium Partners
+- Track registrations through an operational dashboard
+- Accept or reject user requests
+- Review user preferences before sending invitations
+- Send invitations for relevant activities
+- Export upcoming activities to Excel
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Technical Stack
 
-## Contributing
+- Laravel 12 / PHP 8.2+
+- Laravel Breeze authentication
+- Blade, Alpine.js and Vite
+- Maatwebsite Excel
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Local Installation
 
-## Code of Conduct
+The project requires PHP 8.2+, Composer and Node.js/npm.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone https://github.com/RayaneLamri/activity-portal.git
+cd activity-portal
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm run build
+php artisan serve
+```
 
-## Security Vulnerabilities
+The `migrate --seed` command creates demo accounts and realistic scenarios.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+To reset the local database and restore demo data:
 
-## License
+```bash
+php artisan migrate:fresh --seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Demo Accounts
+
+All generated accounts use:
+
+```txt
+password
+```
+
+```txt
+admin@example.test
+marion@example.test
+antoine@example.test
+enzo@example.test
+maxime@example.test
+leslie@example.test
+```
+
+## Suggested Demo Flow
+
+Seeders cover common business cases: multiple activities, user preferences, requests, invitations, acceptances, rejections, status history, partially filled capacities and hidden/inactive users.
+
+To test both sides of the workflow, open two sessions:
+
+- one normal browser window with `admin@example.test`
+- one private window with `marion@example.test`
+
+Suggested flow:
+
+1. As a user, browse activities, apply preferences and send a registration request.
+2. As an administrator, review the request, accept or reject it, then export upcoming activities.
+3. As an administrator, send a targeted invitation.
+4. As a user, accept or reject the invitation.
+
+Emails can be tested locally with Laravel's `log` mail driver, or with a local SMTP tool such as Mailtrap:
+
+```env
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="demo@activity-portal.test"
+MAIL_FROM_NAME="Activity Portal"
+```
+
+## Credits
+
+Visual base adapted from Portal - Bootstrap 5 Admin Dashboard Template.

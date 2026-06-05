@@ -4,7 +4,7 @@
         {{ __('Once your account is deleted, all of its resources and data will be permanently deleted.') }}
     </p>
 
-    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-account-modal">
+    <button type="button" class="btn app-btn-danger" data-bs-toggle="modal" data-bs-target="#delete-account-modal">
         {{ __('Delete Account') }}
     </button>
 

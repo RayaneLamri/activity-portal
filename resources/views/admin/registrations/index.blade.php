@@ -3,9 +3,10 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Admin Registrations</h1>
+                <div class="text-muted">Track upcoming activities, requests, invitations, participants, and capacity.</div>
             </div>
             <div class="col-auto">
-                <a href="{{ route('admin.exports.upcoming-activities') }}" class="btn app-btn-secondary">
+                <a href="{{ route('admin.exports.upcoming-activities') }}" class="btn app-btn-primary">
                     <i class="fa-solid fa-download me-1"></i>
                     Export Future Activities
                 </a>
@@ -15,38 +16,55 @@
 
     <div class="app-card app-card-settings shadow-sm p-4 mb-4">
         <div class="app-card-body">
-            <form method="GET" action="{{ route('admin.registrations.index') }}" class="row g-3 align-items-end" data-live-filter-form>
+            <form method="GET" action="{{ route('admin.registrations.index') }}" class="row g-3 align-items-center" data-live-filter-form>
+                @php
+                    $selectedCities = $filters['cities'] ?? [];
+                    $selectedPeriodNames = $filters['period_names'] ?? [];
+                    $selectedAgeMin = $filters['min_age'] ?? 3;
+                    $selectedAgeMax = $filters['max_age'] ?? 18;
+                @endphp
+
                 <div class="col-12 col-lg-4">
                     <input id="search" type="search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="Search camp, reference, location">
                 </div>
 
                 <div class="col-12 col-md-3 col-lg-2">
-                    <select id="city" name="city" class="form-select">
-                        <option value="">All cities</option>
+                    <select id="cities" name="cities[]" class="form-select" multiple data-select-enhanced data-placeholder="Cities">
                         @foreach ($cities as $city)
-                            <option value="{{ $city }}" @selected(($filters['city'] ?? null) === $city)>{{ $city }}</option>
+                            <option value="{{ $city }}" @selected(in_array($city, $selectedCities, true))>{{ $city }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="col-6 col-md-3 col-lg-2">
-                    <input id="from" type="date" name="from" class="form-control" value="{{ $filters['from'] ?? '' }}" aria-label="From date">
-                </div>
-
-                <div class="col-6 col-md-3 col-lg-2">
-                    <input id="until" type="date" name="until" class="form-control" value="{{ $filters['until'] ?? '' }}" aria-label="Until date">
+                <div class="col-12 col-md-3 col-lg-2">
+                    <div class="age-range-filter">
+                        <div class="age-range-filter__header">
+                            <span>Age</span>
+                            <span class="age-range-filter__value" data-age-range-label>{{ $selectedAgeMin }} - {{ $selectedAgeMax }}</span>
+                        </div>
+                        <div
+                            class="age-range-filter__slider"
+                            data-age-range-slider
+                            data-min="3"
+                            data-max="18"
+                            data-selected-min="{{ $selectedAgeMin }}"
+                            data-selected-max="{{ $selectedAgeMax }}"
+                        ></div>
+                        <input type="hidden" name="min_age" value="{{ $selectedAgeMin }}" data-age-range-min>
+                        <input type="hidden" name="max_age" value="{{ $selectedAgeMax }}" data-age-range-max>
+                    </div>
                 </div>
 
                 <div class="col-12 col-md-3 col-lg-2">
-                    <select id="activity_status" name="activity_status" class="form-select">
-                        <option value="">All statuses</option>
-                        <option value="active" @selected(($filters['activity_status'] ?? null) === 'active')>Active</option>
-                        <option value="inactive" @selected(($filters['activity_status'] ?? null) === 'inactive')>Inactive</option>
+                    <select id="period_names" name="period_names[]" class="form-select" multiple data-select-enhanced data-placeholder="Periods">
+                        @foreach ($periods as $period)
+                            <option value="{{ $period }}" @selected(in_array($period, $selectedPeriodNames, true))>{{ $period }}</option>
+                        @endforeach
                     </select>
                 </div>
 
-                <div class="col-auto">
-                    <button type="button" class="btn app-btn-secondary" data-live-filter-reset>Reset</button>
+                <div class="col-12 col-lg-auto ms-lg-auto">
+                    <button type="button" class="btn app-btn-secondary" data-live-filter-reset>Clear</button>
                 </div>
             </form>
         </div>
@@ -61,5 +79,4 @@
             <div class="modal-content" data-registrations-modal-content></div>
         </div>
     </div>
-
 </x-app-layout>

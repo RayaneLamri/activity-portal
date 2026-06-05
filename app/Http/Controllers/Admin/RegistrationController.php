@@ -3,69 +3,65 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Requests\AdminRegistrationIndexRequest;
 use App\Models\Activity;
 use App\Models\Registration;
 use App\Models\User;
+use App\Services\RegistrationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RegistrationController extends Controller
 {
-    public function index(AdminRegistrationIndexRequest $request)
+    public function __construct(
+        protected RegistrationService $registrationService,
+    ) {}
+
+    public function index(Request $request)
     {
-        $activities = Activity::query()
-        ->with([
-            'registrations' => fn ($query) => $query
-            ->with('user')
-            ->orderBy('date'),
+        $today = now()->toDateString();
+        $cities = (array) $request->query('cities', []);
+        $periodNames = (array) $request->query('period_names', []);
+        $minAge = $request->filled('min_age') ? (int) $request->query('min_age') : null;
+        $maxAge = $request->filled('max_age') ? (int) $request->query('max_age') : null;
+        $search = $request->query('search') ?: null;
+
+        $filters = [
+            'search' => $search,
+            'cities' => $cities,
+            'period_names' => $periodNames,
+            'min_age' => $minAge,
+            'max_age' => $maxAge,
+        ];
+
+        $activities = Activity::with([
+            'registrations' => fn ($query) => $query->with('user')->orderBy('date'),
         ])
-        ->when($request->filled('search'), function ($query) use ($request) {
-            $search = $request->input('search');
+            ->upcoming($today)
+            ->applyFilters($filters)
+            ->orderBy('starts_on')
+            ->orderBy('title')
+            ->paginate(12)
+            ->withQueryString();
 
-            $query->where(function ($query) use ($search) {
-                $query
-                ->where('title', 'like', "%{$search}%")
-                ->orWhere('external_reference', 'like', "%{$search}%")
-                ->orWhere('location_name', 'like', "%{$search}%");
-            });
-        })
-        ->when($request->filled('city'), function ($query) use ($request) {
-            $query->where('city', $request->input('city'));
-        })
-        ->when($request->filled('from'), function ($query) use ($request) {
-            $query->whereDate('starts_on', '>=', $request->date('from'));
-        })
-        ->when($request->filled('until'), function ($query) use ($request) {
-            $query->whereDate('starts_on', '<=', $request->date('until'));
-        })
-        ->when($request->input('activity_status') === 'active', function ($query) {
-            $query->where('is_active', true);
-        })
-        ->when($request->input('activity_status') === 'inactive', function ($query) {
-            $query->where('is_active', false);
-        })
-        ->orderBy('starts_on')
-        ->orderBy('title')
-        ->paginate(12)
-        ->withQueryString();
+        $cities = Activity::cityOptions(
+            Activity::query()->upcoming($today)
+        );
 
-        $cities = Activity::query()
-        ->whereNotNull('city')
-        ->distinct()
-        ->orderBy('city')
-        ->pluck('city');
+        $periods = Activity::periodOptions(
+            Activity::query()->upcoming($today)
+        );
 
         $users = User::query()
         ->where('role', 'user')
-        ->where('is_visible', true)
+        ->where('is_active', true)
         ->orderBy('name')
         ->get();
 
         $data = [
             'activities' => $activities,
             'cities' => $cities,
-            'filters' => $request->validated(),
+            'periods' => $periods,
+            'filters' => $filters,
             'users' => $users,
         ];
 
@@ -80,17 +76,14 @@ class RegistrationController extends Controller
 
     public function activityRegistrations(Activity $activity, string $status): JsonResponse
     {
-        abort_unless(in_array($status, [
-            Registration::INVITED,
-            Registration::REQUESTED,
-            Registration::ACCEPTED,
-        ], true), 404);
+        abort_if($status === Registration::REJECTED, 404);
+        abort_unless(in_array($status, Registration::statuses(), true), 404);
 
         $activity->load([
             'registrations' => fn ($query) => $query
                 ->where('status', $status)
                 ->with('user')
-                ->orderBy('created_at'),
+                ->orderBy('date'),
         ]);
 
         return new JsonResponse([
@@ -102,16 +95,64 @@ class RegistrationController extends Controller
         ]);
     }
 
-    public function show(Registration $registration)
+    public function invite(Request $request)
     {
-        $registration->load([
-            'user',
-            'activity',
-            'events.user',
+        $validated = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'activity_id' => ['required', 'integer', 'exists:activities,id'],
         ]);
 
-        return view('admin.registrations.show', [
-            'registration' => $registration,
-        ]);
+        $user = User::findOrFail($validated['user_id']);
+        $activity = Activity::findOrFail($validated['activity_id']);
+
+        $this->registrationService->createInvite($user, $activity);
+
+        if ($request->expectsJson()) {
+            return new JsonResponse([
+                'message' => 'Invitation sent.',
+                'activity_id' => $activity->id,
+                'user_id' => $user->id,
+            ]);
+        }
+
+        return redirect()
+            ->back()
+            ->with('status', 'User invited to activity.');
+    }
+
+    public function accept(Registration $registration)
+    {
+        $this->registrationService->accept($registration);
+
+        if (request()->expectsJson()) {
+            return new JsonResponse([
+                'message' => 'Registration accepted.',
+                'registration_id' => $registration->id,
+                'activity_id' => $registration->activity_id,
+                'status' => $registration->status,
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.registrations.index')
+            ->with('status', 'Registration accepted.');
+    }
+
+    public function reject(Registration $registration)
+    {
+        $this->registrationService->reject($registration);
+
+        if (request()->expectsJson()) {
+            return new JsonResponse([
+                'message' => 'Registration rejected.',
+                'registration_id' => $registration->id,
+                'activity_id' => $registration->activity_id,
+                'status' => $registration->status,
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.registrations.index')
+            ->with('status', 'Registration rejected.');
     }
 }

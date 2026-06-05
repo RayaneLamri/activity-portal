@@ -2,34 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\UpdateUserPreferenceRequest;
-use App\Models\Activity;
+use App\Models\UserPreference;
 
 class UserPreferenceController extends Controller
 {
     public function edit()
     {
-        return view('preferences.edit', [
-            'preference' => request()->user()->preference,
-            'cities' => Activity::query()
-            ->where('is_active', true)
-            ->whereNotNull('city')
-            ->distinct()
-            ->orderBy('city')
-            ->pluck('city'),
-        ]);
+        return redirect()->route('profile.edit');
     }
 
     public function update(UpdateUserPreferenceRequest $request)
     {
+        $ageGroups = $request->validated('age_groups') ?? [];
+        [$minAge, $maxAge] = UserPreference::ageRangeForGroups($ageGroups);
+
+        $preferences = [
+            'cities' => $request->validated('cities') ?? [],
+            'period_names' => $request->validated('period_names') ?? [],
+            'age_groups' => $ageGroups,
+            'min_age' => $minAge,
+            'max_age' => $maxAge,
+        ];
+
         $request->user()->preference()->updateOrCreate(
             ['user_id' => $request->user()->id],
-            $request->validated(),
+            $preferences,
         );
 
         return redirect()
-        ->route('preferences.edit')
-        ->with('status', 'Preferences updated.');
+            ->route('profile.edit')
+            ->with('status', 'Preferences updated.');
     }
 }

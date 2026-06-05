@@ -4,7 +4,7 @@
             <div class="app-header-content">
                 <div class="row justify-content-between align-items-center">
                     <div class="col-auto">
-                        <a id="sidepanel-toggler" class="sidepanel-toggler d-inline-block d-xl-none" href="#">
+                        <a class="sidepanel-toggler d-inline-block d-xl-none" href="#">
                             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img">
                                 <title>Menu</title>
                                 <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
@@ -115,9 +115,6 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Account</a></li>
-                                @if (Route::has('preferences.edit') && auth()->user()->isUser())
-                                    <li><a class="dropdown-item" href="{{ route('preferences.edit') }}">Preferences</a></li>
-                                @endif
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
@@ -144,17 +141,17 @@
                 </a>
             </div>
 
-            <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
+            <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1 d-flex flex-column">
                 <ul class="app-menu list-unstyled accordion" id="menu-accordion">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                             <span class="nav-icon">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-speedometer2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31A.91.91 0 1 0 8.85 10.58l3.434-4.297a.389.389 0 0 0-.029-.529z"/>
-                                    <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.341-2.341.113a6.49 6.49 0 1 0-10.412 0c-.496 1.228-1.899 1.14-2.341-.113A7.977 7.977 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.65 1.187.1a7.49 7.49 0 1 1 10.832 0c.264.55.984.475 1.187-.1A7 7 0 0 0 8 3z"/>
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-house-door" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M7.646 1.146a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 .146.354v7a.5.5 0 0 1-.5.5H9.5a.5.5 0 0 1-.5-.5v-4H7v4a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .146-.354l6-6zM2.5 7.707V14H6v-4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v4h3.5V7.707L8 2.207l-5.5 5.5z"/>
+                                    <path fill-rule="evenodd" d="M13 2.5V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
                                 </svg>
                             </span>
-                            <span class="nav-link-text">Dashboard</span>
+                            <span class="nav-link-text">Overview</span>
                         </a>
                     </li>
 
@@ -189,19 +186,6 @@
                         </li>
                     @endif
 
-                    @if (Route::has('preferences.edit') && auth()->user()->isUser())
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('preferences.*') ? 'active' : '' }}" href="{{ route('preferences.edit') }}">
-                                <span class="nav-icon">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-sliders" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"/>
-                                    </svg>
-                                </span>
-                                <span class="nav-link-text">Preferences</span>
-                            </a>
-                        </li>
-                    @endif
-
                     @if (Route::has('admin.registrations.index') && auth()->user()->isAdmin())
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}" href="{{ route('admin.registrations.index') }}">
@@ -212,7 +196,21 @@
                                         <path d="M9.5 1a.5.5 0 0 1 .5.5v1A.5.5 0 0 1 9.5 3h-3a.5.5 0 0 1-.5-.5v-1A.5.5 0 0 1 6.5 1h3z"/>
                                     </svg>
                                 </span>
-                                <span class="nav-link-text">Admin Registrations</span>
+                                <span class="nav-link-text">Registrations</span>
+                            </a>
+                        </li>
+                    @endif
+
+                    @if (Route::has('admin.registration-events.index') && auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.registration-events.*') ? 'active' : '' }}" href="{{ route('admin.registration-events.index') }}">
+                                <span class="nav-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-clock-history" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8.515 1.019A7 7 0 1 1 1 8a.5.5 0 0 1 1 0 6 6 0 1 0 1.757-4.243L5.5 5.5A.5.5 0 0 1 5.146 6.354H1.5A.5.5 0 0 1 1 5.854V2.207a.5.5 0 0 1 .854-.353L3.05 3.05a7 7 0 0 1 5.465-2.031z"/>
+                                        <path d="M7.5 4a.5.5 0 0 1 .5.5v3.293l2.146 2.147a.5.5 0 0 1-.708.707l-2.293-2.293A.5.5 0 0 1 7 8V4.5a.5.5 0 0 1 .5-.5z"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-link-text">History</span>
                             </a>
                         </li>
                     @endif
@@ -231,15 +229,35 @@
                         </li>
                     @endif
 
+                </ul>
+
+                <ul class="app-menu list-unstyled mt-auto mb-0">
+                    @if (auth()->user()->isUser())
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
+                                <span class="nav-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-person" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6 5c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-link-text">{{ auth()->user()->name }}</span>
+                            </a>
+                        </li>
+                    @endif
+
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
-                            <span class="nav-icon">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-person" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M10 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6 5c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                                </svg>
-                            </span>
-                            <span class="nav-link-text">Account</span>
-                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="nav-link w-100 text-start bg-transparent">
+                                <span class="nav-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-box-arrow-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8A1.5 1.5 0 0 1 0 11.5v-7A1.5 1.5 0 0 1 1.5 3h8a.5.5 0 0 1 0 1h-8A.5.5 0 0 0 1 4.5v7a.5.5 0 0 0 .5.5h8a.5.5 0 0 1 .5.5z"/>
+                                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                    </svg>
+                                </span>
+                                <span class="nav-link-text">Log Out</span>
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </nav>

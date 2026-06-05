@@ -1,13 +1,14 @@
 @php($titles = [
-    'invited' => 'Invited Users',
-    'requested' => 'Registration Requests',
-    'accepted' => 'Accepted Participants',
+    \App\Models\Registration::INVITED => 'Invited Users',
+    \App\Models\Registration::REQUESTED => 'Registration Requests',
+    \App\Models\Registration::ACCEPTED => 'Accepted Participants',
 ])
+@php($showActions = $status == \App\Models\Registration::REQUESTED)
 
 <div class="modal-header">
     <div>
         <h5 class="modal-title mb-1">{{ $titles[$status] ?? 'Registrations' }}</h5>
-        <div class="small text-muted">{{ $activity->title }} - {{ $activity->starts_on->format('d M Y') }}</div>
+        <div class="small text-muted">{{ $activity->title }} - {{ $activity->period_name ?? 'No period' }}</div>
     </div>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
@@ -19,10 +20,10 @@
                 <tr>
                     <th class="cell">User</th>
                     <th class="cell">Email</th>
-                    <th class="cell">Visibility</th>
-                    <th class="cell">Registered</th>
-                    <th class="cell">Status</th>
-                    <th class="cell">Actions</th>
+                    <th class="cell">Date</th>
+                    @if ($showActions)
+                        <th class="cell text-center"></th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -31,41 +32,30 @@
                         <td class="cell fw-semibold">{{ $registration->user->name }}</td>
                         <td class="cell">{{ $registration->user->email }}</td>
                         <td class="cell">
-                            <span class="badge {{ $registration->user->is_visible ? 'bg-success' : 'bg-secondary' }}">
-                                {{ $registration->user->is_visible ? 'Visible' : 'Hidden' }}
-                            </span>
+                            <span>{{ \Illuminate\Support\Carbon::parse($registration->date)->format('d/m/Y') }}</span>
+                            <span class="note">{{ \Illuminate\Support\Carbon::parse($registration->date)->format('H:i') }}</span>
                         </td>
-                        <td class="cell">
-                            <span>{{ \Illuminate\Support\Carbon::parse($registration->created_at)->format('d M Y') }}</span>
-                            <span class="note">{{ \Illuminate\Support\Carbon::parse($registration->created_at)->format('H:i') }}</span>
-                        </td>
-                        <td class="cell">
-                            <span class="badge {{ $registration->status === 'accepted' ? 'bg-success' : ($registration->status === 'rejected' ? 'bg-danger' : 'bg-warning') }}">
-                                {{ ucfirst($registration->status) }}
-                            </span>
-                        </td>
-                        <td class="cell">
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="{{ route('admin.registrations.show', $registration) }}" class="btn-sm app-btn-secondary">View</a>
+                        @if ($showActions)
+                            <td class="cell text-center">
+                                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                    @if ($registration->status === \App\Models\Registration::REQUESTED)
+                                        <form method="POST" action="{{ route('admin.registrations.accept', $registration) }}" data-live-registration-form data-action-type="accept">
+                                            @csrf
+                                            <button type="submit" class="btn-sm app-btn-success">Accept</button>
+                                        </form>
 
-                                @if (in_array($registration->status, [\App\Models\Registration::REQUESTED, \App\Models\Registration::INVITED], true))
-                                    <form method="POST" action="{{ route('admin.registrations.accept', $registration) }}" data-live-registration-form data-action-type="accept">
-                                        @csrf
-                                        <button type="submit" class="btn-sm app-btn-primary">Accept</button>
-                                    </form>
-
-                                    <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}" class="d-flex gap-2" data-live-registration-form data-action-type="reject">
-                                        @csrf
-                                        <input type="hidden" name="comment" value="Rejected from the activity overview modal.">
-                                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
-                                    </form>
-                                @endif
-                            </div>
-                        </td>
+                                        <form method="POST" action="{{ route('admin.registrations.reject', $registration) }}" data-live-registration-form data-action-type="reject">
+                                            @csrf
+                                            <button type="submit" class="btn-sm app-btn-danger">Reject</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </td>
+                        @endif
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="cell text-center text-muted py-4">No users in this category.</td>
+                        <td colspan="{{ $showActions ? 5 : 4 }}" class="cell text-center text-muted py-4">No users in this category.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -3,6 +3,7 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Users</h1>
+                <div class="text-muted">Manage active users and send targeted activity invitations.</div>
             </div>
         </div>
     </x-slot>
@@ -14,10 +15,8 @@
                     <thead>
                         <tr>
                             <th class="cell">User</th>
-                            <th class="cell">Visibility</th>
-                            <th class="cell">Preference</th>
-                            <th class="cell">Registrations</th>
-                            <th class="cell">Action</th>
+                            <th class="cell text-center">Active</th>
+                            <th class="cell text-center"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,21 +26,33 @@
                                     <span class="d-block fw-semibold">{{ $user->name }}</span>
                                     <span class="note">{{ $user->email }}</span>
                                 </td>
-                                <td class="cell">
-                                    <span class="badge {{ $user->is_visible ? 'bg-success' : 'bg-secondary' }}">
-                                        {{ $user->is_visible ? 'Visible' : 'Hidden' }}
-                                    </span>
-                                </td>
-                                <td class="cell">{{ $user->preference?->preferred_city ?: 'No saved preference' }}</td>
-                                <td class="cell">{{ $user->registrations_count }}</td>
-                                <td class="cell">
-                                    <form method="POST" action="{{ route('admin.users.toggle-visibility', $user) }}">
+                                <td class="cell text-center">
+                                    <form method="POST" action="{{ route('admin.users.toggle-active', $user) }}" class="d-inline-flex justify-content-center">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn-sm app-btn-secondary">
-                                            {{ $user->is_visible ? 'Hide' : 'Show' }}
-                                        </button>
+                                        <div class="form-check form-switch m-0">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                                aria-label="Toggle activity for {{ $user->name }}"
+                                                @checked($user->is_active)
+                                                onchange="this.form.submit()"
+                                            >
+                                        </div>
                                     </form>
+                                </td>
+                                <td class="cell text-center">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                        <button
+                                            type="button"
+                                            class="btn-sm app-btn-primary"
+                                            data-user-invite-modal-url="{{ route('admin.users.invite-options', $user) }}"
+                                            @disabled(! $user->is_active)
+                                        >
+                                            Invite
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -54,4 +65,10 @@
     <nav class="app-pagination">
         {{ $users->links('pagination::bootstrap-5') }}
     </nav>
+
+    <div class="modal fade" id="user-invite-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" data-user-invite-modal-content></div>
+        </div>
+    </div>
 </x-app-layout>

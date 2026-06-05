@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\User;
+use App\Models\UserPreference;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +22,19 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $today = now()->toDateString();
+
+        $cities = Activity::cityOptions(Activity::query());
+
+        $periods = Activity::periodOptions(
+            Activity::query()->upcoming($today)
+        );
+
+        return view('auth.register', [
+            'cities' => $cities,
+            'periods' => $periods,
+            'ageGroups' => UserPreference::ageGroups(),
+        ]);
     }
 
     /**
@@ -30,22 +44,44 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'cities' => ['nullable', 'array'],
+            'cities.*' => ['string', 'max:255'],
+            'age_groups' => ['nullable', 'array'],
+            'age_groups.*' => ['string', 'in:'.implode(',', UserPreference::ageGroupKeys())],
+            'period_names' => ['nullable', 'array'],
+            'period_names.*' => ['string', 'max:255'],
         ]);
 
+        $cities = $validated['cities'] ?? [];
+        $ageGroups = $validated['age_groups'] ?? [];
+        $periodNames = $validated['period_names'] ?? [];
+
+        [$minAge, $maxAge] = UserPreference::ageRangeForGroups($ageGroups);
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
+
+        if ($cities || $ageGroups || $periodNames) {
+            $user->preference()->create([
+                'cities' => $cities,
+                'age_groups' => $ageGroups,
+                'period_names' => $periodNames,
+                'min_age' => $minAge,
+                'max_age' => $maxAge,
+            ]);
+        }
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route($this->homeRouteName($user), absolute: false));
     }
 }

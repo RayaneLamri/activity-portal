@@ -1,4 +1,5 @@
 @props(['bodyClass' => 'app app-login p-0'])
+@php($isSignup = str_contains($bodyClass, 'app-signup'))
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -9,16 +10,23 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="shortcut icon" href="{{ asset('portal/assets/favicon.ico') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('portal/assets/favicon.svg') }}">
 
         <script defer src="{{ asset('portal/assets/plugins/fontawesome/js/all.min.js') }}"></script>
-        <link id="theme-style" rel="stylesheet" href="{{ asset('portal/assets/css/portal.css') }}">
+        @vite(['public/portal/assets/scss/portal.scss'])
+        <style>
+            .select2-container--default .select2-selection--multiple {
+                min-height: 38px;
+                border-color: #ced4da;
+            }
+        </style>
+        @vite(['resources/js/app.js'])
     </head>
 
-    <body class="{{ $bodyClass }}">
+    <body class="{{ $bodyClass }}" data-bs-no-jquery>
         <div class="row g-0 app-auth-wrapper">
-            <div class="col-12 col-md-7 col-lg-6 auth-main-col text-center p-5">
-                <div class="d-flex flex-column align-content-end">
+            <div class="col-12 {{ $isSignup ? 'col-md-12 col-lg-12' : 'col-md-7 col-lg-6' }} auth-main-col text-center p-5">
+                <div class="d-flex flex-column h-100">
                     <div class="app-auth-body mx-auto">
                         <div class="app-auth-branding mb-4">
                             <a class="app-logo" href="{{ url('/') }}">
@@ -32,30 +40,19 @@
                     <footer class="app-auth-footer">
                         <div class="container text-center py-3">
                             <small class="copyright">
-                                Designed with <span class="sr-only">love</span>
-                                <i class="fas fa-heart" style="color: #fb866a;"></i>
-                                by <a class="app-link" href="http://themes.3rdwavemedia.com" target="_blank" rel="noreferrer">Xiaoying Riley</a> for developers
+                                Activity Portal · Demo project
                             </small>
                         </div>
                     </footer>
                 </div>
             </div>
 
-            <div class="col-12 col-md-5 col-lg-6 h-100 auth-background-col">
-                <div class="auth-background-holder"></div>
-                <div class="auth-background-mask"></div>
-                <div class="auth-background-overlay p-3 p-lg-5">
-                    <div class="d-flex flex-column align-content-end h-100">
-                        <div class="h-100"></div>
-                        <div class="overlay-content p-3 p-lg-4 rounded">
-                            <h5 class="mb-3 overlay-title">{{ config('app.name', 'Laravel') }}</h5>
-                            <div>
-                                Gérez les activités, les inscriptions et les préférences utilisateurs dans une interface Portal Bootstrap 5 fidèle au thème d’origine.
-                            </div>
-                        </div>
-                    </div>
+            @unless ($isSignup)
+                <div class="col-12 col-md-5 col-lg-6 h-100 auth-background-col">
+                    <div class="auth-background-holder"></div>
+                    <div class="auth-background-mask"></div>
                 </div>
-            </div>
+            @endunless
         </div>
     </body>
 </html>

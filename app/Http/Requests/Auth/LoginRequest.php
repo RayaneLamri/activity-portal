@@ -50,6 +50,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if ($this->user()?->isUser() && ! $this->user()->is_active) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'This account is inactive.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

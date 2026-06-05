@@ -7,22 +7,83 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="shortcut icon" href="{{ asset('portal/assets/favicon.ico') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('portal/assets/favicon.svg') }}">
 
         <script defer src="{{ asset('portal/assets/plugins/fontawesome/js/all.min.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link id="theme-style" rel="stylesheet" href="{{ asset('portal/assets/css/portal.css') }}">
-        @vite(['resources/js/app.js'])
+        <style>
+            .select2-container--default .select2-selection--multiple {
+                min-height: 38px;
+                border-color: #ced4da;
+            }
+
+            .age-range-filter {
+                padding: 0.5rem 0.25rem 0;
+            }
+
+            .age-range-filter__header {
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.75rem;
+            }
+
+            .age-range-filter__value {
+                font-weight: 600;
+                color: #212529;
+            }
+
+            .age-range-filter__slider {
+                margin: 0 0.35rem 0.85rem;
+            }
+
+            .age-range-filter__slider.ui-slider {
+                height: 0.35rem;
+                border: 0;
+                background: #dee2e6;
+            }
+
+            .age-range-filter__slider .ui-slider-range {
+                background: #4f46e5;
+            }
+
+            .age-range-filter__slider .ui-slider-handle {
+                width: 1rem;
+                height: 1rem;
+                border-radius: 999px;
+                border: 2px solid #4f46e5;
+                background: #fff;
+                top: -0.35rem;
+                cursor: pointer;
+            }
+
+            .age-range-filter__ends {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.75rem;
+                color: #6c757d;
+            }
+        </style>
+        @vite(['public/portal/assets/scss/portal.scss', 'resources/js/app.js'])
     </head>
 
     <body
         class="app"
+        data-bs-no-jquery
         data-flash-success="{{ e(session('success') ?? session('status') ?? '') }}"
         data-flash-warning="{{ e(session('warning') ?? '') }}"
         data-flash-error="{{ e(session('error') ?? '') }}"
         data-validation-errors="{{ e(json_encode($errors->all())) }}"
     >
         @include('layouts.navigation')
+
+        <a id="sidepanel-toggler" class="sidepanel-toggler d-inline-flex d-xl-none position-fixed top-0 start-0 m-3 p-2 bg-white shadow-sm rounded" href="#" style="z-index: 1030;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 30 30" role="img">
+                <title>Menu</title>
+                <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
+            </svg>
+        </a>
 
         <div class="app-wrapper">
             <div class="app-content pt-3 p-md-3 p-lg-4">
@@ -40,9 +101,7 @@
             <footer class="app-footer">
                 <div class="container text-center py-3">
                     <small class="copyright">
-                        Designed with <span class="sr-only">love</span>
-                        <i class="fas fa-heart" style="color: #fb866a;"></i>
-                        by <a class="app-link" href="http://themes.3rdwavemedia.com" target="_blank" rel="noreferrer">Xiaoying Riley</a> for developers
+                        Activity Portal · Demo project
                     </small>
                 </div>
             </footer>
