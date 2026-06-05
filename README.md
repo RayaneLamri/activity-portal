@@ -38,10 +38,9 @@ The project addresses an internal organization problem: when activities, registr
 
 ## Technical Stack
 
-- Laravel 12 / PHP 8.2+
-- Laravel Breeze authentication
-- Blade, Alpine.js and Vite
-- Maatwebsite Excel
+- PHP / Laravel
+- Bootstrap
+- Vanilla JavaScript / jQuery
 
 ## Local Installation
 
