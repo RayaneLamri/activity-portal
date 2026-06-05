@@ -111,4 +111,4 @@ MAIL_FROM_NAME="Activity Portal"
 
 ## Credits
 
-Visual base adapted from Portal - Bootstrap 5 Admin Dashboard Template.
+Visual base adapted from [Portal - Bootstrap 5 Admin Dashboard Template](https://themes.3rdwavemedia.com/bootstrap-templates/startup/portal-free-bootstrap-admin-dashboard-template-for-developers/).
